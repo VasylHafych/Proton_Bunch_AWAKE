@@ -93,6 +93,9 @@ function plot_cam_crossections(params_array, data, conv_mat;
         
         ax[cam_ind, 1].plot(x_axis, data[cam_ind][x_ind,:], color="red", linewidth=1)
         ax[cam_ind, 2].plot(y_axis, data[cam_ind][:,y_ind], color="red", linewidth=1)
+        
+        ax[cam_ind, 1].set_yscale("log")
+        ax[cam_ind, 2].set_yscale("log")
     end
     
     for (ind, params) in enumerate(params_array)

@@ -68,9 +68,9 @@ function cam_likelihood(
     δ_y::Float64 = params.δ_y[cam_ind]
     
     # To Be Deleted: 
-    if δ_x < 0 || δ_y < 0 || params.tr_size[1] < 0.1 || params.tr_size[2] < 0.1 
-        return -Inf
-    end
+#     if δ_x < 0 || δ_y < 0 || params.tr_size[1] < 0.1 || params.tr_size[2] < 0.1 
+#         return -Inf
+#     end
     
     μ_x::Float64  = params.μ_x[cam_ind] * δ_x
     μ_y::Float64  = params.μ_y[cam_ind] * δ_y
