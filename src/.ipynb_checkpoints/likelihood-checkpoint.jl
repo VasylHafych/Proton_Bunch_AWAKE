@@ -79,7 +79,7 @@ function cam_likelihood(
     σ_y::Float64 = sqrt.(params.tr_size[2]^2 + 10^-4*params.ang_spr[2]^2*(params.s_waist[1] - params.s_cam[cam_ind])^2) 
     
     σ_x = sqrt(σ_x^2 + (params.σ_x[cam_ind]*δ_x).^2)
-    σ_y = sqrt(σ_y^2 + (params.σ_y[cam_ind]*δ_y).^2)
+    σ_y = sqrt(σ_y^2 + (params.σ_y[cam_ind]*δ_y).^2) # \sigma x is the same for both
     
     max_pred_amp::Int64 = size(cv_matrix)[2]-1
     

@@ -4,7 +4,7 @@ function plot_envelop_trajectory(
         labels = [i for i in 1:9]
         ) 
     
-    fig, ax = plt.subplots(2,1, figsize=(6,4), sharex=true)
+    fig, ax = plt.subplots(2,1, figsize=(8,6 ), sharex=true)
     fig.subplots_adjust(hspace=0.0, wspace=0.0)
     
     x_range = range(-1, stop = 24, length=100)
@@ -22,12 +22,22 @@ function plot_envelop_trajectory(
         
         if ind == 1 
             
-            ax[1].vlines(params.s_cam, 0,  maximum(σ_x_vals), linestyle="-", color="darkslategray", alpha=0.5)
-            ax[2].vlines(params.s_cam, 0,  maximum(σ_y_vals), linestyle="-", color="darkslategray", alpha=0.5)
+#             ax[1].vlines(params.s_cam, 0,  maximum(σ_x_vals), linestyle="-", color="darkslategray", alpha=0.5)
+#             ax[2].vlines(params.s_cam, 0,  maximum(σ_y_vals), linestyle="-", color="darkslategray", alpha=0.5)
+            
+            ax[1].axvline(params.s_cam[1], linestyle="-", color="darkslategray", alpha=0.5)
+            ax[1].axvline(params.s_cam[2], linestyle="-", color="darkslategray", alpha=0.5)
+            ax[1].axvline(params.s_cam[3], linestyle="-", color="darkslategray", alpha=0.5)
+            ax[1].axvline(params.s_cam[4], linestyle="-", color="darkslategray", alpha=0.5)
+            
+            ax[2].axvline(params.s_cam[1], linestyle="-", color="darkslategray", alpha=0.5)
+            ax[2].axvline(params.s_cam[2], linestyle="-", color="darkslategray", alpha=0.5)
+            ax[2].axvline(params.s_cam[3], linestyle="-", color="darkslategray", alpha=0.5)
+            ax[2].axvline(params.s_cam[4], linestyle="-", color="darkslategray", alpha=0.5)
 
             ax[1].fill_between(x_range, σ_x_vals, color=colors[ind], label=labels[ind], alpha=0.4)
             ax[2].fill_between(x_range, σ_y_vals, color=colors[ind], label=labels[ind],  alpha=0.4)
-
+            
             ax[1].set_xlim(-1, maximum(x_range))
 
             ax[1].set_ylim(0, maximum(σ_x_vals))
@@ -38,16 +48,16 @@ function plot_envelop_trajectory(
         end
     end
 
-    ax[1].legend(loc="upper left", ncol=5, framealpha=0.0)
-    ax[1].set_ylabel(L"\sigma_x")
-    ax[2].set_ylabel(L"\sigma_y")
-    ax[2].set_xlabel(L"s")
+    ax[1].legend(loc="upper left", ncol=5, framealpha=1)
+    ax[1].set_ylabel(L"\sigma_x, [mm]")
+    ax[2].set_ylabel(L"\sigma_y, [mm]")
+    ax[2].set_xlabel(L"s, [m]")
 end
 
 function generate_event(
         params::D, population::Float64, conv_mat::T; 
         inc_noise=true,
-        size = [(81, 101),(101, 101),(41, 51),(241, 351)],
+        size = [(70, 70),(70, 70),(40, 40),(70, 70)],
         light_fluctuations = 2.0
     ) where {T<: NamedTuple, D <: NamedTuple}
 
@@ -60,24 +70,25 @@ function generate_event(
     return (cam_1 = img_1, cam_2 = img_2, cam_3 = img_3, cam_4 = img_4, population = population)
 end
 
-function total_likelihood(params::D, data::M, conv_mat::T) where {T<: NamedTuple, D <: NamedTuple, M <: NamedTuple}
+# function total_likelihood(params::D, data::M, conv_mat::T) where {T<: NamedTuple, D <: NamedTuple, M <: NamedTuple}
     
-    ll = zero(Float64)
+#     ll = zero(Float64)
         
-    ll += cam_likelihood(params, data.cam_1, data.population, conv_mat.cam_1, 1)
-    ll += cam_likelihood(params, data.cam_2, data.population, conv_mat.cam_2, 2)
-    ll += cam_likelihood(params, data.cam_3, data.population, conv_mat.cam_3, 3)
-    ll += cam_likelihood(params, data.cam_4, data.population, conv_mat.cam_4, 4)
+#     ll += cam_likelihood(params, data.cam_1, data.population, conv_mat.cam_1, 1)
+#     ll += cam_likelihood(params, data.cam_2, data.population, conv_mat.cam_2, 2)
+#     ll += cam_likelihood(params, data.cam_3, data.population, conv_mat.cam_3, 3)
+#     ll += cam_likelihood(params, data.cam_4, data.population, conv_mat.cam_4, 4)
     
-    return ll
-end
+#     return ll
+# end
 
 function plot_cam_crossections(params_array, data, conv_mat; 
-        colors = ["gray", "orange"], 
+        colors = ["C0", "C1", "C2"],
+        labels=["1", "2", "3"],
         light_fluctuations = 2.0
         ) 
     
-    fig, ax = plt.subplots(4,2, figsize=(6,6))
+    fig, ax = plt.subplots(4,2, figsize=(8,7))
     fig.subplots_adjust(hspace=0.0, wspace=0.0)
 
     [ax[i].set_xticks([]) for i in 1:8]
@@ -91,11 +102,14 @@ function plot_cam_crossections(params_array, data, conv_mat;
         x_axis = 1:length(data[cam_ind][x_ind,:])
         y_axis = 1:length(data[cam_ind][:,y_ind])
         
-        ax[cam_ind, 1].plot(x_axis, data[cam_ind][x_ind,:], color="red", linewidth=1)
-        ax[cam_ind, 2].plot(y_axis, data[cam_ind][:,y_ind], color="red", linewidth=1)
+#         ax[cam_ind, 1].plot(x_axis, data[cam_ind][x_ind,:], color="red", linewidth=1)
+#         ax[cam_ind, 2].plot(y_axis, data[cam_ind][:,y_ind], color="red", linewidth=1)
         
-        ax[cam_ind, 1].set_yscale("log")
-        ax[cam_ind, 2].set_yscale("log")
+        ax[cam_ind, 1].fill_between(x_axis, data[cam_ind][x_ind,:], color="gray", alpha=0.5, linewidth=0, label="Data")
+        ax[cam_ind, 2].fill_between(y_axis, data[cam_ind][:,y_ind], color="gray", alpha=0.5, linewidth=0)
+        
+#         ax[cam_ind, 1].set_yscale("log")
+#         ax[cam_ind, 2].set_yscale("log")
     end
     
     for (ind, params) in enumerate(params_array)
@@ -109,16 +123,22 @@ function plot_cam_crossections(params_array, data, conv_mat;
             y_axis = 1:length(simulated_data[cam_ind][:,y_ind])
             
             if ind == 1 
-                ax[cam_ind, 1].fill_between(x_axis, simulated_data[cam_ind][x_ind,:], color=colors[ind], alpha=0.5)
-                ax[cam_ind, 2].fill_between(y_axis, simulated_data[cam_ind][:,y_ind], color=colors[ind], alpha=0.5)
+                ax[cam_ind, 1].plot(x_axis, simulated_data[cam_ind][x_ind,:], color=colors[ind], alpha=1, linewidth=1.5, label=labels[ind])
+                ax[cam_ind, 2].plot(y_axis, simulated_data[cam_ind][:,y_ind], color=colors[ind], alpha=1, linewidth=1.5)
             else
-                ax[cam_ind, 1].plot(x_axis, simulated_data[cam_ind][x_ind,:])
-                ax[cam_ind, 2].plot(y_axis, simulated_data[cam_ind][:,y_ind])
+                ax[cam_ind, 1].plot(x_axis, simulated_data[cam_ind][x_ind,:], label=labels[ind], color=colors[ind])
+                ax[cam_ind, 2].plot(y_axis, simulated_data[cam_ind][:,y_ind], color=colors[ind])
                 
             end
         end
         
     end
+    
+    ax[1].legend(loc="upper left")
+    ax[4,1].set_xlabel(L"x")
+    ax[4,2].set_xlabel(L"y")
+    
+    fig.text(0.04, 0.5, "Pixel Value", va="center", rotation="vertical")
 
 end
 
