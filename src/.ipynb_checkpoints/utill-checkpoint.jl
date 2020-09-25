@@ -1,3 +1,7 @@
+
+"""
+    Generate envelope trajectories for multiple parameters. No resolution effects included. The first trajectory will be filled with a gray color and can be considered as a "truth" trajectory.  
+"""
 function plot_envelop_trajectory(
         params_array; 
         colors = ["gray", "red", "C3", "C4", "C5", "C6", "C7", "C8", "C9"],
@@ -11,8 +15,8 @@ function plot_envelop_trajectory(
     
     for (ind, params) in enumerate(params_array)
         
-        σ_x(x) = sqrt.(params.tr_size[1]^2 + 10^-4*params.ang_spr[1]^2*(params.s_waist[1] - x)^2) 
-        σ_y(x) = sqrt.(params.tr_size[2]^2 + 10^-4*params.ang_spr[2]^2*(params.s_waist[1] - x)^2) 
+        σ_x(x) = sqrt.(params.tr_size[1]^2 + 10^-4*params.ang_spr[1]^2*(params.waist[1] - x)^2) 
+        σ_y(x) = sqrt.(params.tr_size[2]^2 + 10^-4*params.ang_spr[2]^2*(params.waist[1] - x)^2) 
 
         σ_x_vals = [σ_x(x) for x in x_range]
         σ_y_vals = [σ_y(x) for x in x_range]
@@ -54,23 +58,11 @@ function plot_envelop_trajectory(
     ax[2].set_xlabel(L"s, [m]")
 end
 
-function generate_event(
-        params::D, population::Float64, conv_mat::T; 
-        inc_noise=true,
-        size = [(70, 70),(70, 70),(40, 40),(70, 70)],
-        light_fluctuations = 2.0
-    ) where {T<: NamedTuple, D <: NamedTuple}
-
-    
-    img_1 = generate_image(params, population, conv_mat.cam_1, light_fluctuations, 1, size = size[1], inc_noise=inc_noise)
-    img_2 = generate_image(params, population, conv_mat.cam_2, light_fluctuations, 2, size = size[2], inc_noise=inc_noise)
-    img_3 = generate_image(params, population, conv_mat.cam_3, light_fluctuations, 3, size = size[3], inc_noise=inc_noise)
-    img_4 = generate_image_is(params, population, 4, size = size[4])
-    
-    return (cam_1 = img_1, cam_2 = img_2, cam_3 = img_3, cam_4 = img_4, population = population)
-end
 
 
+"""
+    Plot crosssection of signal and model prediction. The alignment plain is determined by the first parameter.  
+"""
 function plot_cam_crossections(params_array, data, conv_mat; 
         colors = ["C0", "C1", "C2"],
         labels=["1", "2", "3"],
@@ -85,8 +77,8 @@ function plot_cam_crossections(params_array, data, conv_mat;
     
     
     for cam_ind in 1:4
-        x_ind = round(Int64, params_array[1].μ_x[cam_ind])
-        y_ind = round(Int64, params_array[1].μ_y[cam_ind])
+        x_ind = round(Int64, params_array[1].algmx[cam_ind])
+        y_ind = round(Int64, params_array[1].algmy[cam_ind])
         
         x_axis = 1:length(data[cam_ind][x_ind,:])
         y_axis = 1:length(data[cam_ind][:,y_ind])
@@ -105,8 +97,8 @@ function plot_cam_crossections(params_array, data, conv_mat;
         simulated_data = generate_event(params, data.population, conv_mat; inc_noise=false, size=[size(data.cam_1), size(data.cam_2), size(data.cam_3), size(data.cam_4)])
         
         for cam_ind in 1:4
-            x_ind = round(Int64, params.μ_x[cam_ind])
-            y_ind = round(Int64, params.μ_y[cam_ind])
+            x_ind = round(Int64, params_array[1].algmx[cam_ind])
+            y_ind = round(Int64, params_array[1].algmy[cam_ind])
             
             x_axis = 1:length(simulated_data[cam_ind][x_ind,:])
             y_axis = 1:length(simulated_data[cam_ind][:,y_ind])
@@ -131,6 +123,9 @@ function plot_cam_crossections(params_array, data, conv_mat;
 
 end
 
+"""
+    Plot integral of signal and model prediction.  
+"""
 function plot_cam_integral(params_array, data, conv_mat; 
         colors = ["C0", "C1", "C2"],
         labels=["1", "2", "3"],
@@ -145,28 +140,22 @@ function plot_cam_integral(params_array, data, conv_mat;
     
     
     for cam_ind in 1:4
-        x_ind = round(Int64, params_array[1].μ_x[cam_ind])
-        y_ind = round(Int64, params_array[1].μ_y[cam_ind])
         
-        x_axis = 1:length(data[cam_ind][x_ind,:])
-        y_axis = 1:length(data[cam_ind][:,y_ind])
-        
-#         ax[cam_ind, 1].plot(x_axis, data[cam_ind][x_ind,:], color="red", linewidth=1)
-#         ax[cam_ind, 2].plot(y_axis, data[cam_ind][:,y_ind], color="red", linewidth=1)
-        
+        x_axis = 1:length(data[cam_ind][1,:])
+        y_axis = 1:length(data[cam_ind][:,1])
+              
         ax[cam_ind, 1].fill_between(x_axis, [sum(data[cam_ind], dims=1)...], color="gray", alpha=0.5, linewidth=0, label="Data")
         ax[cam_ind, 2].fill_between(y_axis, [sum(data[cam_ind], dims=2)...], color="gray", alpha=0.5, linewidth=0)
-        
-#         ax[cam_ind, 1].set_yscale("log")
-#         ax[cam_ind, 2].set_yscale("log")
+    
     end
     
     for (ind, params) in enumerate(params_array)
+        
         simulated_data = generate_event(params, data.population, conv_mat; inc_noise=false, size=[size(data.cam_1), size(data.cam_2), size(data.cam_3), size(data.cam_4)])
         
         for cam_ind in 1:4
-            x_ind = round(Int64, params.μ_x[cam_ind])
-            y_ind = round(Int64, params.μ_y[cam_ind])
+            x_ind = round(Int64, params.algmx[cam_ind])
+            y_ind = round(Int64, params.algmy[cam_ind])
             
             x_axis = 1:length(simulated_data[cam_ind][x_ind,:])
             y_axis = 1:length(simulated_data[cam_ind][:,y_ind])
