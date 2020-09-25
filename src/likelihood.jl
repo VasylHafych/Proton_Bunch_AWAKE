@@ -8,10 +8,11 @@ function generate_image_cam13(
         light_fluctuations::Float64,
         cam_ind::Int64;
         size::Tuple{Int64, Int64}=(101,101),
-        inc_noise = true
+        inc_noise = true,
+        include_satur = true
     ) where {T <: NamedTuple}
     
-    image_matrix = zeros(Int64, size...)
+    image_matrix = zeros(Float64, size...)
     light_coefficient::Float64 = population*params.light_amp[cam_ind]
     
     δ_x::Float64 = params.psx[cam_ind]
@@ -26,7 +27,7 @@ function generate_image_cam13(
     σ_x = sqrt(σ_x^2 + (params.resx[cam_ind]*δ_x).^2)
     σ_y = sqrt(σ_y^2 + (params.resy[cam_ind]*δ_y).^2)
     
-    bck_cumsum = cumsum(cv_matrix[:,1])
+    bck_cumsum = exp.(cumsum(cv_matrix[:,1]))
     
     for pix_ind in CartesianIndices(image_matrix)
     
@@ -45,9 +46,9 @@ function generate_image_cam13(
             pix_prediction += argmin(background_tmp) - 1
         end
         
-#         if pix_prediction > 4095
-#             pix_prediction = 4095
-#         end
+        if include_satur && pix_prediction > 4095
+            pix_prediction = 4095
+        end
         
         image_matrix[pix_ind] = round(Int64, pix_prediction)
     end
@@ -63,10 +64,11 @@ function generate_image_cam4(
         population::Float64,
         cam_ind::Int64;
         size::Tuple{Int64, Int64}=(101,101),
-        inc_noise = true
+        inc_noise = true,
+        include_satur = true
     ) where {T <: NamedTuple}
     
-    image_matrix = zeros(Int64, size...)
+    image_matrix = zeros(Float64, size...)
     light_coefficient::Float64 = population*params.cam4_light_amp
     
     δ_x::Float64 = params.cam4_psx
@@ -92,12 +94,13 @@ function generate_image_cam4(
         pix_prediction = pix_prediction*light_coefficient + params.cam4_ped
         
         if inc_noise
-            pix_prediction = rand(truncated(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), 0.0, Inf)) 
+            pix_prediction = rand(truncated(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), 0.0, 4095)) 
+#             pix_prediction = rand(truncated(Poisson(pix_prediction), 0.0, 4095)) 
         end
         
-        #         if pix_prediction > 4095
-#             pix_prediction = 4095
-#         end
+        if include_satur && pix_prediction > 4095
+            pix_prediction = 4095
+        end
         
         image_matrix[pix_ind] = round(Int64, pix_prediction)
     end
@@ -154,7 +157,7 @@ function likelihood_cam13(
                     cv_index = max_pred_amp
                 end
 
-                cum_log_lik += log(cv_matrix[Int64(image[pix_ind]+1), cv_index+1])
+                cum_log_lik += cv_matrix[Int64(image[pix_ind]+1), cv_index+1]
             end
         end
         
@@ -203,35 +206,19 @@ function likelihood_cam4(
                 pix_prediction::Float64 = cdf(Normal(μ_x,σ_x), x_edge) - cdf(Normal(μ_x,σ_x), x_edge - δ_x)
                 pix_prediction *= cdf(Normal(μ_y,σ_y), y_edge) - cdf(Normal(μ_y,σ_y), y_edge - δ_y)
                 pix_prediction = pix_prediction*light_coefficient + params.cam4_ped
-                cum_log_lik += log(pdf(truncated(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), 0.0, Inf), image[pix_ind]))
+                
+                cum_log_lik += logpdf(truncated(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), 0.0, 4096), image[pix_ind])
+                
                 
             end
         end
         
-        
+        tot_loglik[t] = cum_log_lik
     end
 
     return sum(tot_loglik)
 end
 
-"""
-    Log-Likelihood of the beamline (4 cameras included)
-"""
-log_likelihood = let e = event, c = conv_matrices
-    
-    params -> begin
-        
-        ll = zero(Float64)
-        
-        ll += likelihood_cam13(params, e.cam_1, e.population, c.cam_1, 1)
-        ll += likelihood_cam13(params, e.cam_2, e.population, c.cam_2, 2)
-        ll += likelihood_cam13(params, e.cam_3, e.population, c.cam_3, 3)
-        ll += likelihood_cam4(params, e.cam_4, e.population, 4)
-    
-        return LogDVal(ll)
-        
-    end
-end
 
 """
     Generate simulated event using 4 cameras. 
@@ -240,14 +227,15 @@ function generate_event(
         params::D, population::Float64, conv_mat::T; 
         inc_noise=true,
         size = [(70, 70),(70, 70),(40, 40),(70, 70)],
-        light_fluctuations = 2.0
+        light_fluctuations = 2.0,
+        include_satur = true,
     ) where {T<: NamedTuple, D <: NamedTuple}
 
     
-    img_1 = generate_image_cam13(params, population, conv_mat.cam_1, light_fluctuations, 1, size = size[1], inc_noise=inc_noise)
-    img_2 = generate_image_cam13(params, population, conv_mat.cam_2, light_fluctuations, 2, size = size[2], inc_noise=inc_noise)
-    img_3 = generate_image_cam13(params, population, conv_mat.cam_3, light_fluctuations, 3, size = size[3], inc_noise=inc_noise)
-    img_4 = generate_image_cam4(params, population, 4, size = size[4], inc_noise=inc_noise)
+    img_1 = generate_image_cam13(params, population, conv_mat.cam_1, light_fluctuations, 1, size = size[1], inc_noise=inc_noise, include_satur=include_satur)
+    img_2 = generate_image_cam13(params, population, conv_mat.cam_2, light_fluctuations, 2, size = size[2], inc_noise=inc_noise, include_satur=include_satur)
+    img_3 = generate_image_cam13(params, population, conv_mat.cam_3, light_fluctuations, 3, size = size[3], inc_noise=inc_noise, include_satur=include_satur)
+    img_4 = generate_image_cam4(params, population, 4, size = size[4], inc_noise=inc_noise, include_satur=include_satur)
     
     return (cam_1 = img_1, cam_2 = img_2, cam_3 = img_3, cam_4 = img_4, population = population)
 end

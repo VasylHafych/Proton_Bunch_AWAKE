@@ -66,7 +66,8 @@ end
 function plot_cam_crossections(params_array, data, conv_mat; 
         colors = ["C0", "C1", "C2"],
         labels=["1", "2", "3"],
-        light_fluctuations = 2.0
+        light_fluctuations = 2.0, 
+        include_satur = false
         ) 
     
     fig, ax = plt.subplots(4,2, figsize=(8,7))
@@ -94,7 +95,7 @@ function plot_cam_crossections(params_array, data, conv_mat;
     end
     
     for (ind, params) in enumerate(params_array)
-        simulated_data = generate_event(params, data.population, conv_mat; inc_noise=false, size=[size(data.cam_1), size(data.cam_2), size(data.cam_3), size(data.cam_4)])
+        simulated_data = generate_event(params, data.population, conv_mat; inc_noise=false, size=[size(data.cam_1), size(data.cam_2), size(data.cam_3), size(data.cam_4)], include_satur=include_satur)
         
         for cam_ind in 1:4
             x_ind = round(Int64, params_array[1].algmx[cam_ind])
@@ -129,7 +130,8 @@ end
 function plot_cam_integral(params_array, data, conv_mat; 
         colors = ["C0", "C1", "C2"],
         labels=["1", "2", "3"],
-        light_fluctuations = 2.0
+        light_fluctuations = 2.0,
+        include_satur = false
         ) 
     
     fig, ax = plt.subplots(4,2, figsize=(8,7))
@@ -151,7 +153,7 @@ function plot_cam_integral(params_array, data, conv_mat;
     
     for (ind, params) in enumerate(params_array)
         
-        simulated_data = generate_event(params, data.population, conv_mat; inc_noise=false, size=[size(data.cam_1), size(data.cam_2), size(data.cam_3), size(data.cam_4)])
+        simulated_data = generate_event(params, data.population, conv_mat; inc_noise=false, size=[size(data.cam_1), size(data.cam_2), size(data.cam_3), size(data.cam_4)], include_satur=include_satur)
         
         for cam_ind in 1:4
             x_ind = round(Int64, params.algmx[cam_ind])
