@@ -13,7 +13,7 @@ function generate_image_cam13(
     ) where {T <: NamedTuple}
     
     image_matrix = zeros(Float64, size...)
-    light_coefficient::Float64 = population*params.light_amp[cam_ind] * 10^3
+    light_coefficient::Float64 = params.light_amp[cam_ind] * 10^5
     
     δ_x::Float64 = params.psx[cam_ind] * 10^-3
     δ_y::Float64 = params.psy[cam_ind] * 10^-3
@@ -69,7 +69,7 @@ function generate_image_cam4(
     ) where {T <: NamedTuple}
     
     image_matrix = zeros(Float64, size...)
-    light_coefficient::Float64 = population*params.cam4_light_amp * 10^3
+    light_coefficient::Float64 = params.cam4_light_amp * 10^5
     
     δ_x::Float64 = params.cam4_psx * 10^-3
     δ_y::Float64 = params.cam4_psy * 10^-3
@@ -121,7 +121,7 @@ function likelihood_cam13(
     ) where {T <: NamedTuple}
     
     tot_loglik = zeros(Float64, n_threads)
-    light_coefficient::Float64 = population*params.light_amp[cam_ind] * 10^3
+    light_coefficient::Float64 = params.light_amp[cam_ind] * 10^5
     
     δ_x::Float64 = params.psx[cam_ind] * 10^-3
     δ_y::Float64 = params.psy[cam_ind] * 10^-3
@@ -180,7 +180,7 @@ function likelihood_cam4(
     ) where {T <: NamedTuple}
    
     tot_loglik = zeros(Float64, n_threads)    
-    light_coefficient::Float64 = population*params.cam4_light_amp * 10^3
+    light_coefficient::Float64 = params.cam4_light_amp * 10^5
     
     δ_x::Float64 = params.cam4_psx * 10^-3
     δ_y::Float64 = params.cam4_psy * 10^-3
