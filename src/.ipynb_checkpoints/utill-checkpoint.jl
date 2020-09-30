@@ -5,10 +5,11 @@
 function plot_envelop_trajectory(
         params_array; 
         colors = ["gray", "red", "C3", "C4", "C5", "C6", "C7", "C8", "C9"],
-        labels = [i for i in 1:9]
+        labels = [i for i in 1:9],
+        figsize=(8,6)
         ) 
     
-    fig, ax = plt.subplots(2,1, figsize=(8,6 ), sharex=true)
+    fig, ax = plt.subplots(2,1, figsize=figsize, sharex=true)
     fig.subplots_adjust(hspace=0.0, wspace=0.0)
     
     x_range = range(-1, stop = 24, length=100)
@@ -67,10 +68,11 @@ function plot_cam_crossections(params_array, data, conv_mat;
         colors = ["C0", "C1", "C2"],
         labels=["1", "2", "3"],
         light_fluctuations = 2.0, 
-        include_satur = false
+        include_satur = false,
+        figsize=(8,7)
         ) 
     
-    fig, ax = plt.subplots(4,2, figsize=(8,7))
+    fig, ax = plt.subplots(4,2, figsize=figsize)
     fig.subplots_adjust(hspace=0.0, wspace=0.0)
 
     [ax[i].set_xticks([]) for i in 1:8]
@@ -131,10 +133,11 @@ function plot_cam_integral(params_array, data, conv_mat;
         colors = ["C0", "C1", "C2"],
         labels=["1", "2", "3"],
         light_fluctuations = 2.0,
-        include_satur = false
+        include_satur = false,
+        figsize=(8,7)
         ) 
     
-    fig, ax = plt.subplots(4,2, figsize=(8,7))
+    fig, ax = plt.subplots(4,2, figsize=figsize)
     fig.subplots_adjust(hspace=0.0, wspace=0.0)
 
     [ax[i].set_xticks([]) for i in 1:8]
