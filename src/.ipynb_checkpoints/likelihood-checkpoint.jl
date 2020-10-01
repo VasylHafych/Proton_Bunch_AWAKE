@@ -152,12 +152,14 @@ function likelihood_cam13(
                 pix_prediction = pix_prediction*light_coefficient
 
                 cv_index = floor(Int64, pix_prediction)
-
-                if cv_index > max_pred_amp
-                    cv_index = max_pred_amp
+                
+                if cv_index > max_pred_amp - 1
+                    cv_index = max_pred_amp - 1
                 end
-
-                cum_log_lik += cv_matrix[Int64(image[pix_ind]+1), cv_index+1]
+                
+                cum_log_lik += cv_matrix[Int64(image[pix_ind]+1), cv_index+1]  
+                
+#                 cum_log_lik += background_conv(cv_matrix, Int64(image[pix_ind]), cv_index) # interpolated convolution 
             end
         end
         
@@ -167,6 +169,7 @@ function likelihood_cam13(
 
     return sum(tot_loglik)
 end
+
 
 """
     Log-Likelihood (camera 4)
@@ -241,4 +244,21 @@ function generate_event(
     img_4 = generate_image_cam4(params, population, 4, size = size[4], inc_noise=inc_noise, include_satur=include_satur)
     
     return (cam_1 = img_1, cam_2 = img_2, cam_3 = img_3, cam_4 = img_4, population = population)
+end
+
+function background_conv(cv_matrix::Array{Float64,2}, observed::Int64, expected::Float64)
+    
+    expected = expected + 1 # convert into matrix index 
+    observed = observed + 1
+
+    left_exp, right_exp = floor(Int64, expected), ceil(Int64, expected)
+    
+    if left_exp != right_exp
+        left_prob, right_prob = exp(cv_matrix[observed, left_exp]), exp(cv_matrix[observed, right_exp])
+        int_prob = log(left_prob + (right_prob - left_prob)*(expected - left_exp))
+    else 
+       int_prob =  cv_matrix[observed, left_exp]
+    end
+    
+    return int_prob   
 end
