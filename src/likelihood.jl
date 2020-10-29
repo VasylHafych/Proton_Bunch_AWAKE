@@ -108,123 +108,6 @@ function generate_image_cam4(
     return image_matrix
 end
 
-"""
-    Log-Likelihood (camera 1-3)
-"""
-function likelihood_cam13(
-        params::T, 
-        image::Array{Float64,2},
-        population::Float64,
-        cv_matrix::Array{Float64,2},
-        cam_ind::Int64;
-        n_threads = Threads.nthreads()
-    ) where {T <: NamedTuple}
-    
-    tot_loglik = zeros(Float64, n_threads)
-    light_coefficient::Float64 = params.light_amp[cam_ind] * 10^5
-    
-    δ_x::Float64 = params.psx[cam_ind] * 10^-3
-    δ_y::Float64 = params.psy[cam_ind] * 10^-3
-    
-    μ_x::Float64  = params.algmx[cam_ind] * δ_x
-    μ_y::Float64  = params.algmy[cam_ind] * δ_y
-    
-    σ_x::Float64 = sqrt.(params.tr_size[1]^2 + 10^-4*params.ang_spr[1]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
-    σ_y::Float64 = sqrt.(params.tr_size[2]^2 + 10^-4*params.ang_spr[2]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
-    
-    σ_x = sqrt(σ_x^2 + (params.resx[cam_ind]*δ_x).^2)
-    σ_y = sqrt(σ_y^2 + (params.resy[cam_ind]*δ_y).^2) # \sigma x is the same for both
-    
-    max_pred_amp::Int64 = size(cv_matrix)[2]-1
-    
-    Threads.@threads for t = 1:n_threads
-        
-        cum_log_lik = zero(Float64)
-        
-        for pix_ind in CartesianIndices(image)[t:n_threads:length(image)] 
-            if !isnan(image[pix_ind])
-                x_edge::Float64 = pix_ind.I[1] * δ_x
-                y_edge::Float64 = pix_ind.I[2] * δ_y
-
-                pix_prediction::Float64 = cdf(Normal(μ_x,σ_x), x_edge) - cdf(Normal(μ_x,σ_x), x_edge - δ_x)
-                pix_prediction *= cdf(Normal(μ_y,σ_y), y_edge) - cdf(Normal(μ_y,σ_y), y_edge - δ_y)
-
-                pix_prediction = pix_prediction*light_coefficient
-
-                cv_index = floor(Int64, pix_prediction)
-                
-                if cv_index > max_pred_amp - 1
-                    cv_index = max_pred_amp - 1
-                end
-                
-                cum_log_lik += cv_matrix[Int64(image[pix_ind]+1), cv_index+1]  
-                
-#                 cum_log_lik += background_conv(cv_matrix, Int64(image[pix_ind]), cv_index) # interpolated convolution 
-            end
-        end
-        
-        tot_loglik[t] = cum_log_lik
-        
-    end
-
-    return sum(tot_loglik)
-end
-
-
-"""
-    Log-Likelihood (camera 4)
-"""
-function likelihood_cam4(
-        params::T, 
-        image::Array{Float64,2},
-        population::Float64,
-        cam_ind::Int64;
-        n_threads = Threads.nthreads()
-    ) where {T <: NamedTuple}
-   
-    tot_loglik = zeros(Float64, n_threads)    
-    light_coefficient::Float64 = params.cam4_light_amp * 10^5
-    
-    δ_x::Float64 = params.cam4_psx * 10^-3
-    δ_y::Float64 = params.cam4_psy * 10^-3
-    
-    μ_x::Float64  = params.algmx[cam_ind] * δ_x
-    μ_y::Float64  = params.algmy[cam_ind] * δ_y
-    
-    σ_x::Float64 = sqrt.(params.tr_size[1]^2 + 10^-4*params.ang_spr[1]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
-    σ_y::Float64 = sqrt.(params.tr_size[2]^2 + 10^-4*params.ang_spr[2]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
-    
-    σ_x = sqrt(σ_x^2 + (params.cam4_resx*δ_x).^2)
-    σ_y = sqrt(σ_y^2 + (params.cam4_resy*δ_y).^2)
-    
-    Threads.@threads for t = 1:n_threads
-        
-        cum_log_lik = zero(Float64)
-        
-        for pix_ind in CartesianIndices(image)[t:n_threads:length(image)] 
-            if !isnan(image[pix_ind])
-                x_edge::Float64 = pix_ind.I[1] * δ_x
-                y_edge::Float64 = pix_ind.I[2] * δ_y
-
-                pix_prediction::Float64 = cdf(Normal(μ_x,σ_x), x_edge) - cdf(Normal(μ_x,σ_x), x_edge - δ_x)
-                pix_prediction *= cdf(Normal(μ_y,σ_y), y_edge) - cdf(Normal(μ_y,σ_y), y_edge - δ_y)
-                pix_prediction = pix_prediction*light_coefficient + params.cam4_ped
-                
-                if pix_prediction > 10^4
-                    pix_prediction = 10^4 # logpdf(truncated(Normal(20000, 2*sqrt(20000)), 0.0, 4096), 4000) gives NaN
-                end   
-                cum_log_lik += logpdf(truncated(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), 0.0, 4096), image[pix_ind])
-                
-                
-            end
-        end
-        
-        tot_loglik[t] = cum_log_lik
-    end
-
-    return sum(tot_loglik)
-end
-
 
 """
     Generate simulated event using 4 cameras. 
@@ -246,19 +129,138 @@ function generate_event(
     return (cam_1 = img_1, cam_2 = img_2, cam_3 = img_3, cam_4 = img_4, population = population)
 end
 
-function background_conv(cv_matrix::Array{Float64,2}, observed::Int64, expected::Float64)
-    
-    expected = expected + 1 # convert into matrix index 
-    observed = observed + 1
 
-    left_exp, right_exp = floor(Int64, expected), ceil(Int64, expected)
+function likelihood_cam4(
+        params::NamedTuple, 
+        image::Array{F,2},
+        population::AbstractFloat,
+        cam_ind::Integer;
+        n_threads::Integer = Threads.nthreads()
+    ) where {F <: AbstractFloat}
+   
+
+    VT = eltype(params.tr_size)
+    tot_loglik::Array{VT} = zeros(VT, n_threads)    
+    light_coefficient::VT = params.cam4_light_amp * 10^5
+    
+    δ_x::VT = params.cam4_psx * 10^-3
+    δ_y::VT = params.cam4_psy * 10^-3
+    
+    @inbounds μ_x::VT  = params.algmx[cam_ind] * δ_x
+    @inbounds μ_y::VT  = params.algmy[cam_ind] * δ_y
+    
+    @inbounds σ_x_1::VT = sqrt(params.tr_size[1]^2 + 10^-4*params.ang_spr[1]^2*(params.waist[1] - params.s_cam[cam_ind])^2)
+    @inbounds σ_y_1::VT = sqrt(params.tr_size[2]^2 + 10^-4*params.ang_spr[2]^2*(params.waist[1] - params.s_cam[cam_ind])^2)
+    
+    σ_x::VT = sqrt(σ_x_1^2 + (params.cam4_resx*δ_x)^2)
+    σ_y::VT = sqrt(σ_y_1^2 + (params.cam4_resy*δ_y)^2)
+    
+    Threads.@threads for t in eachindex(tot_loglik)
+        
+        cum_log_lik = zero(Float64) # important part 
+        
+        @inbounds for pix_ind in CartesianIndices(image)[t:n_threads:length(image)] 
+            @inbounds if !isnan(image[pix_ind])
+                
+                @inbounds x_edge = pix_ind.I[1] * δ_x
+                @inbounds y_edge = pix_ind.I[2] * δ_y
+
+                right_tmp, left_tmp = pdf(Normal(μ_x,σ_x), x_edge), pdf(Normal(μ_x,σ_x), x_edge - δ_x)
+                pix_prediction = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
+                right_tmp, left_tmp = pdf(Normal(μ_y,σ_y), y_edge), pdf(Normal(μ_y,σ_y), y_edge - δ_y)
+                pix_prediction *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
+                
+                pix_prediction = pix_prediction*light_coefficient + params.cam4_ped
+                
+                @inbounds cum_log_lik += logpdf(truncated(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), 0.0, 4096), image[pix_ind]) # pp+
+#                 @inbounds cum_log_lik += logpdf(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), image[pix_ind]) # pp+
+                
+            end
+        end
+        
+        @inbounds tot_loglik[t] = cum_log_lik
+    end
+    return sum(tot_loglik)
+end
+
+function likelihood_cam13(
+        params::NamedTuple, 
+        image::Array{F,2},
+        population::AbstractFloat,
+        cv_matrix::Array{C,2},
+        cv_func::Function, 
+        cam_ind::Integer;
+        n_threads::Integer = Threads.nthreads()
+    ) where {F <: AbstractFloat, C <: AbstractFloat}
+    
+    VT = eltype(params.tr_size)
+    tot_loglik::Array{VT} = zeros(VT, n_threads)    
+    
+    light_coefficient::VT = params.light_amp[cam_ind] * 10^5
+    
+    δ_x::VT = params.psx[cam_ind] * 10^-3
+    δ_y::VT = params.psy[cam_ind] * 10^-3
+    
+    @inbounds μ_x::VT  = params.algmx[cam_ind] * δ_x
+    @inbounds μ_y::VT  = params.algmy[cam_ind] * δ_y
+    
+    @inbounds σ_x_1::VT = sqrt.(params.tr_size[1]^2 + 10^-4*params.ang_spr[1]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
+    @inbounds σ_y_1::VT = sqrt.(params.tr_size[2]^2 + 10^-4*params.ang_spr[2]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
+    
+    σ_x::VT = sqrt(σ_x_1^2 + (params.resx[cam_ind]*δ_x)^2)
+    σ_y::VT = sqrt(σ_y_1^2 + (params.resy[cam_ind]*δ_y)^2) # \sigma x is the same for both
+    
+    max_pred_amp = size(cv_matrix)[2]-1
+    
+    Threads.@threads for t in eachindex(tot_loglik)
+        
+        cum_log_lik = zero(Float64)
+        
+        @inbounds for pix_ind in CartesianIndices(image)[t:n_threads:length(image)] 
+            @inbounds if !isnan(image[pix_ind])
+                
+                @inbounds x_edge = pix_ind.I[1] * δ_x
+                @inbounds y_edge = pix_ind.I[2] * δ_y
+
+                right_tmp, left_tmp = pdf(Normal(μ_x,σ_x), x_edge), pdf(Normal(μ_x,σ_x), x_edge - δ_x)
+                pix_prediction = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
+                right_tmp, left_tmp = pdf(Normal(μ_y,σ_y), y_edge), pdf(Normal(μ_y,σ_y), y_edge - δ_y)
+                pix_prediction *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
+
+                pix_prediction = pix_prediction*light_coefficient
+
+                if pix_prediction > max_pred_amp - 1
+                    pix_prediction = max_pred_amp - 1
+                end
+                
+                @inbounds cum_log_lik += cv_func(cv_matrix, image[pix_ind], pix_prediction)
+                
+            end
+        end
+        tot_loglik[t] = cum_log_lik
+        
+    end
+
+    return sum(tot_loglik)
+end
+
+function conv_tabl_discrete(cv_matrix::Array{F,2}, observed::Real, expected::Real) where {F<:AbstractFloat}  
+    return cv_matrix[convert(Integer, observed+1), round(Integer, expected+1)]     
+end
+
+function conv_tabl_cont(cv_matrix::Array{F,2}, observed::Real, expected::Real) where {F<:AbstractFloat}   
+    
+    left_exp, right_exp = floor(Integer, expected+1), ceil(Integer, expected+1)
+    int_prob = 0.0
     
     if left_exp != right_exp
-        left_prob, right_prob = exp(cv_matrix[observed, left_exp]), exp(cv_matrix[observed, right_exp])
-        int_prob = log(left_prob + (right_prob - left_prob)*(expected - left_exp))
+        
+        left_prob, right_prob = cv_matrix[convert(Integer, observed+1), left_exp], cv_matrix[convert(Integer, observed+1), right_exp]
+        int_prob = log(left_prob + (right_prob - left_prob)*(expected + 1 - left_exp))
+        
     else 
-       int_prob =  cv_matrix[observed, left_exp]
-    end
+       int_prob =  log(cv_matrix[convert(Integer, observed+1), left_exp])
+    end 
     
-    return int_prob   
+    return int_prob
 end
