@@ -157,7 +157,7 @@ function likelihood_cam4(
     
     Threads.@threads for t in eachindex(tot_loglik)
         
-        cum_log_lik = zero(Float64) # important part 
+        cum_log_lik = zero(Float64) 
         
         @inbounds for pix_ind in CartesianIndices(image)[t:n_threads:length(image)] 
             @inbounds if !isnan(image[pix_ind])
@@ -172,8 +172,8 @@ function likelihood_cam4(
                 
                 pix_prediction = pix_prediction*light_coefficient + params.cam4_ped
                 
-                @inbounds cum_log_lik += logpdf(truncated(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), 0.0, 4096), image[pix_ind]) # pp+
-#                 @inbounds cum_log_lik += logpdf(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), image[pix_ind]) # pp+
+#                 @inbounds cum_log_lik += logpdf(truncated(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), 0.0, 4096.0), image[pix_ind]) # pp+
+                @inbounds cum_log_lik += logpdf(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), image[pix_ind]) # significantly speeds up auto diff
                 
             end
         end
@@ -182,6 +182,7 @@ function likelihood_cam4(
     end
     return sum(tot_loglik)
 end
+
 
 function likelihood_cam13(
         params::NamedTuple, 
@@ -230,7 +231,7 @@ function likelihood_cam13(
                 pix_prediction = pix_prediction*light_coefficient
 
                 if pix_prediction > max_pred_amp - 1
-                    pix_prediction = max_pred_amp - 1
+                    pix_prediction += pix_prediction - (max_pred_amp - 1)
                 end
                 
                 @inbounds cum_log_lik += cv_func(cv_matrix, image[pix_ind], pix_prediction)
@@ -251,16 +252,9 @@ end
 function conv_tabl_cont(cv_matrix::Array{F,2}, observed::Real, expected::Real) where {F<:AbstractFloat}   
     
     left_exp, right_exp = floor(Integer, expected+1), ceil(Integer, expected+1)
-    int_prob = 0.0
-    
-    if left_exp != right_exp
-        
-        left_prob, right_prob = cv_matrix[convert(Integer, observed+1), left_exp], cv_matrix[convert(Integer, observed+1), right_exp]
-        int_prob = log(left_prob + (right_prob - left_prob)*(expected + 1 - left_exp))
-        
-    else 
-       int_prob =  log(cv_matrix[convert(Integer, observed+1), left_exp])
-    end 
-    
+    exp_rem = mod(expected+1, 1)
+    left_prob, right_prob = cv_matrix[convert(Integer, observed+1), left_exp], cv_matrix[convert(Integer, observed+1), right_exp]
+    int_prob = log(left_prob + (right_prob - left_prob)*exp_rem)
     return int_prob
+
 end
