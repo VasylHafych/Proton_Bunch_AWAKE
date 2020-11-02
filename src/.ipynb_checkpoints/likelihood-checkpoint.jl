@@ -172,7 +172,7 @@ function likelihood_cam4(
                 
                 pix_prediction = pix_prediction*light_coefficient + params.cam4_ped
                 
-#                 @inbounds cum_log_lik += logpdf(truncated(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), 0.0, 4096.0), image[pix_ind]) # pp+
+#                 @inbounds cum_log_lik += logpdf(truncated(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), 0.0, 4096.0), image[pix_ind]) # leads to -Inf
                 @inbounds cum_log_lik += logpdf(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), image[pix_ind]) # significantly speeds up auto diff
                 
             end
@@ -231,7 +231,7 @@ function likelihood_cam13(
                 pix_prediction = pix_prediction*light_coefficient
 
                 if pix_prediction > max_pred_amp - 1
-                    pix_prediction += pix_prediction - (max_pred_amp - 1)
+                    pix_prediction -= pix_prediction - (max_pred_amp - 1)
                 end
                 
                 @inbounds cum_log_lik += cv_func(cv_matrix, image[pix_ind], pix_prediction)
