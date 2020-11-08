@@ -1,6 +1,5 @@
 using JLD2
 using FileIO
-using PyPlot
 using Statistics
 using StatsBase 
 using Distributions
@@ -27,6 +26,13 @@ function def_data_vector(ev_ind)
     return [( cam_1 = images["cam_1"][i ,:,:], cam_2 = images["cam_2"][i ,:,:], 
             cam_3 = images["cam_3"][i ,:,:], cam_4 = images["cam_4"][i ,:,:], 
             population = images["charge"][i ,:][1],) for i in ev_ind]
+end
+
+function def_rem_ind()
+    images = load("../../data/experiment/dataset_2/m2/images-satur.jld2")
+    ind_tmp = [26, 72, 322, 442, 281, 435, 113, 188, 357, 95, 311, 440]
+    rem_ind = setdiff(eachindex(images["charge"]), ind_tmp)
+    return rem_ind
 end
 
 function log_lik_ndiff(e, cv_mat; 
@@ -145,6 +151,6 @@ function main(event_ind)
     
 end
 
-ind_samples = [26, 72, 322, 442, 281, 435, 113, 188, 357, 95, 311, 440]
+ind_samples = def_rem_ind()
 
 main(ind_samples)
