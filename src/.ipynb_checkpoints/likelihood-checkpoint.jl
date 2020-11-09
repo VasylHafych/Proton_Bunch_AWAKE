@@ -34,8 +34,13 @@ function generate_image_cam13(
         x_edge::Float64 = pix_ind.I[1] * δ_x
         y_edge::Float64 = pix_ind.I[2] * δ_y
 
-        pix_prediction::Float64 = cdf(Normal(μ_x,σ_x), x_edge) - cdf(Normal(μ_x,σ_x), x_edge - δ_x)
-        pix_prediction *= cdf(Normal(μ_y,σ_y), y_edge) - cdf(Normal(μ_y,σ_y), y_edge - δ_y)
+#         pix_prediction::Float64 = cdf(Normal(μ_x,σ_x), x_edge) - cdf(Normal(μ_x,σ_x), x_edge - δ_x)
+#         pix_prediction *= cdf(Normal(μ_y,σ_y), y_edge) - cdf(Normal(μ_y,σ_y), y_edge - δ_y)
+        
+        right_tmp, left_tmp = pdf(Normal(μ_x,σ_x), x_edge), pdf(Normal(μ_x,σ_x), x_edge - δ_x)
+        pix_prediction = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
+        right_tmp, left_tmp = pdf(Normal(μ_y,σ_y), y_edge), pdf(Normal(μ_y,σ_y), y_edge - δ_y)
+        pix_prediction *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
         
         pix_prediction = pix_prediction*light_coefficient
         
@@ -88,8 +93,13 @@ function generate_image_cam4(
         x_edge::Float64 = pix_ind.I[1] * δ_x
         y_edge::Float64 = pix_ind.I[2] * δ_y
 
-        pix_prediction::Float64 = cdf(Normal(μ_x,σ_x), x_edge) - cdf(Normal(μ_x,σ_x), x_edge - δ_x)
-        pix_prediction *= cdf(Normal(μ_y,σ_y), y_edge) - cdf(Normal(μ_y,σ_y), y_edge - δ_y)
+#         pix_prediction::Float64 = cdf(Normal(μ_x,σ_x), x_edge) - cdf(Normal(μ_x,σ_x), x_edge - δ_x)
+#         pix_prediction *= cdf(Normal(μ_y,σ_y), y_edge) - cdf(Normal(μ_y,σ_y), y_edge - δ_y)
+        
+        right_tmp, left_tmp = pdf(Normal(μ_x,σ_x), x_edge), pdf(Normal(μ_x,σ_x), x_edge - δ_x)
+        pix_prediction = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
+        right_tmp, left_tmp = pdf(Normal(μ_y,σ_y), y_edge), pdf(Normal(μ_y,σ_y), y_edge - δ_y)
+        pix_prediction *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
         
         pix_prediction = pix_prediction*light_coefficient + params.cam4_ped
         
