@@ -1,66 +1,3 @@
-
-"""
-    Generate envelope trajectories for multiple parameters. No resolution effects included. The first trajectory will be filled with a gray color and can be considered as a "truth" trajectory.  
-"""
-function plot_envelop_trajectory(
-        params_array; 
-        colors = ["gray", "red", "C3", "C4", "C5", "C6", "C7", "C8", "C9"],
-        labels = [i for i in 1:9],
-        figsize=(8,6)
-        ) 
-    
-    fig, ax = plt.subplots(2,1, figsize=figsize, sharex=true)
-    fig.subplots_adjust(hspace=0.0, wspace=0.0)
-    
-    x_range = range(-1, stop = 24, length=100)
-    
-    for (ind, params) in enumerate(params_array)
-        
-        σ_x(x) = sqrt.(params.tr_size[1]^2 + 10^-4*params.ang_spr[1]^2*(params.waist[1] - x)^2) 
-        σ_y(x) = sqrt.(params.tr_size[2]^2 + 10^-4*params.ang_spr[2]^2*(params.waist[1] - x)^2) 
-
-        σ_x_vals = [σ_x(x) for x in x_range]
-        σ_y_vals = [σ_y(x) for x in x_range]
-
-        ax[1].set_ylim(0, maximum(σ_x_vals))
-        ax[2].set_ylim(0, maximum(σ_y_vals))
-        
-        if ind == 1 
-            
-#             ax[1].vlines(params.s_cam, 0,  maximum(σ_x_vals), linestyle="-", color="darkslategray", alpha=0.5)
-#             ax[2].vlines(params.s_cam, 0,  maximum(σ_y_vals), linestyle="-", color="darkslategray", alpha=0.5)
-            
-            ax[1].axvline(params.s_cam[1], linestyle="-", color="darkslategray", alpha=0.5)
-            ax[1].axvline(params.s_cam[2], linestyle="-", color="darkslategray", alpha=0.5)
-            ax[1].axvline(params.s_cam[3], linestyle="-", color="darkslategray", alpha=0.5)
-            ax[1].axvline(params.s_cam[4], linestyle="-", color="darkslategray", alpha=0.5)
-            
-            ax[2].axvline(params.s_cam[1], linestyle="-", color="darkslategray", alpha=0.5)
-            ax[2].axvline(params.s_cam[2], linestyle="-", color="darkslategray", alpha=0.5)
-            ax[2].axvline(params.s_cam[3], linestyle="-", color="darkslategray", alpha=0.5)
-            ax[2].axvline(params.s_cam[4], linestyle="-", color="darkslategray", alpha=0.5)
-
-            ax[1].fill_between(x_range, σ_x_vals, color=colors[ind], label=labels[ind], alpha=0.4)
-            ax[2].fill_between(x_range, σ_y_vals, color=colors[ind], label=labels[ind],  alpha=0.4)
-            
-            ax[1].set_xlim(-1, maximum(x_range))
-
-            ax[1].set_ylim(0, maximum(σ_x_vals))
-            ax[2].set_ylim(0, maximum(σ_y_vals))
-        else 
-            ax[1].plot(x_range, σ_x_vals, color=colors[ind], ls="--", label=labels[ind])
-            ax[2].plot(x_range, σ_y_vals, color=colors[ind], ls="--", label=labels[ind])
-        end
-    end
-
-    ax[1].legend(loc="upper left", ncol=5, framealpha=1)
-    ax[1].set_ylabel(L"\sigma_x, [mm]")
-    ax[2].set_ylabel(L"\sigma_y, [mm]")
-    ax[2].set_xlabel(L"s, [m]")
-end
-
-
-
 """
     Plot crosssection of signal and model prediction. The alignment plain is determined by the first parameter.  
 """
@@ -241,4 +178,117 @@ function corner_plots(
         end
     end
         
+end
+
+function eval_conv(conv_matrix, ind)
+    ind = convert.(Int64, ind)
+    y_tmp = exp.(conv_matrix[:, ind[1]+1])
+    for ind_tmp in ind[2:end]
+        y_tmp = conv(y_tmp, exp.(conv_matrix[:, ind_tmp+1]))
+    end
+    prepend!(y_tmp, repeat([0], length(ind)-1))
+end
+
+function eval_quantile(conv_matrix, ind; alpha_min = 0.025, alpha_max = 0.975)
+    vals = eval_conv(conv_matrix, ind)
+    vals_up = argmin(abs.(cumsum(vals) .- alpha_max)) 
+    vals_down = argmin(abs.(cumsum(vals) .- alpha_min))
+    return (vals_down, vals_up)
+end
+
+function eval_conv_is(ind, lf)
+    mue = sum(ind)
+    sigma = sqrt(sum((lf .* sqrt.(ind)).^2))
+    return truncated(Normal(mue, sigma), 0, Inf)
+end
+
+nansum(x) = sum(x[.!isnan.(x)])
+
+function plot_projections(cv_matrix, event_tr, event_nt, params; isnontr = false, istrunc = true)
+    
+    amp_coeff = 1.15
+    alpha_1 = 0.005
+    alpha_2 = 0.995
+    
+    median_event = generate_event(params, 
+        event_nt.population, cv_matrix; 
+        inc_noise=false, 
+        size=[size(event_nt.cam_1), size(event_nt.cam_2), size(event_nt.cam_3), size(event_nt.cam_4)], 
+        include_satur=false
+    )
+    
+    fig, ax = plt.subplots(4,2, figsize=(12,8))
+    fig.subplots_adjust(hspace=0.23, wspace=0.05)
+    
+    for i in 1:4 
+        ycounts_nt = [sum(event_nt[i], dims=1)...]
+        ycounts_tr = [sum(event_tr[i], dims=1)...]
+        median_sum = [sum(median_event[i], dims=1)...]
+
+        xedges = 1:length(ycounts_tr)
+        
+        if isnontr
+            ax[i,1].step(xedges, ycounts_nt, color="darkgray", where="mid", zorder=0)
+        end
+        
+        if istrunc
+            ax[i,1].fill_between(xedges, ycounts_tr, step="mid", color="darkgray", alpha=1)
+        end
+
+        if i != 4
+            fluct = [eval_quantile(conv_matrices[i], j, alpha_min = alpha_1, alpha_max = alpha_2) for j in eachcol(median_event[i])]
+            fluct_up = [j[1] for j in fluct] .- median_sum
+            fluct_down = median_sum .- [j[2] for j in fluct] 
+        else
+            fluct = [eval_conv_is(j, params.cam4_light_fluct) for j in eachcol(median_event[i])];
+            fluct_up = [quantile(j, 0.975) for j in fluct] .- median_sum
+            fluct_down = median_sum .- [quantile(j, 0.025) for j in fluct]
+        end
+
+        ax[i,1].errorbar(xedges, median_sum, yerr=[fluct_down, fluct_up], ms=2.2, fmt=".", color="darkblue", ecolor="red",  capthick=0.5, capsize=1.5, linewidth=0.5)
+
+        ax[i,1].set_ylim(bottom=0.0)
+        ax[i,1].set_xlim(minimum(xedges), maximum(xedges))
+
+        ycounts_nt = [sum(event_nt[i], dims=2)...]
+        ycounts_tr = [sum(event_tr[i], dims=2)...]
+        median_sum = [sum(median_event[i], dims=2)...]
+
+        xedges = 1:length(ycounts_tr)
+
+        if isnontr
+            ax[i,2].step(xedges, ycounts_nt, color="darkgray", where="mid", zorder=0)
+        end
+        if istrunc
+            ax[i,2].fill_between(xedges, ycounts_tr, step="mid", color="darkgray", alpha=1)
+        end
+
+        if i != 4
+            fluct = [eval_quantile(conv_matrices[i], j, alpha_min = alpha_1, alpha_max = alpha_2) for j in eachrow(median_event[i])]
+            fluct_up = [j[1] for j in fluct] .- median_sum
+            fluct_down = median_sum .- [j[2] for j in fluct] 
+        else
+            fluct = [eval_conv_is(j, params.cam4_light_fluct) for j in eachrow(median_event[i])];
+            fluct_up = [quantile(j, 0.975) for j in fluct] .- median_sum
+            fluct_down = median_sum .- [quantile(j, 0.025) for j in fluct];
+        end
+
+        ax[i,2].errorbar(xedges, median_sum, yerr=[fluct_down, fluct_up], ms=2.2, fmt=".", color="darkblue", ecolor="red",  capthick=0.5, capsize=1.5, linewidth=0.5)
+
+        ax[i,2].set_ylim(bottom=0.0)
+        ax[i,2].set_xlim(minimum(xedges), maximum(xedges))
+
+        ax[i,1].set_yticks([])
+        ax[i,2].set_yticks([])
+    end
+
+    ax[4,1].set_xlabel("x [pixel index]")
+    ax[4,2].set_xlabel("y [pixel index]")
+
+    ax[1,1].set_ylabel("Cam. #1")
+    ax[2,1].set_ylabel("Cam. #2")
+    ax[3,1].set_ylabel("Cam. #3")
+    ax[4,1].set_ylabel("Cam. #4")
+
+    fig.text(0.08, 0.5, "Integrated Light Intensity [a.u.]", va="center", rotation="vertical")
 end

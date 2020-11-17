@@ -268,3 +268,4 @@ function conv_tabl_cont(cv_matrix::Array{F,2}, observed::Real, expected::Real) w
     return int_prob
 
 end
+

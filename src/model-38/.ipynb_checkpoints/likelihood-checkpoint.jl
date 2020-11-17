@@ -23,8 +23,8 @@ function likelihood_cam4(
     σ_x_1_res::VT = sqrt(σ_x_1^2 + (params.cam4_resx*δ_x)^2)
     σ_y_1_res::VT = sqrt(σ_y_1^2 + (params.cam4_resy*δ_y)^2) 
     
-    @inbounds σ_x_2::VT = sqrt.(params.tr_size_2[1]^2 + 10^-4*params.ang_spr_2[1]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
-    @inbounds σ_y_2::VT = sqrt.(params.tr_size_2[2]^2 + 10^-4*params.ang_spr_2[2]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
+    @inbounds σ_x_2::VT = sqrt.(params.tr_size[1]^2 + 10^-4*params.ang_spr_2[1]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
+    @inbounds σ_y_2::VT = sqrt.(params.tr_size[2]^2 + 10^-4*params.ang_spr_2[2]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
     
     σ_x_2_res::VT = sqrt(σ_x_2^2 + (params.cam4_resx*δ_x)^2)
     σ_y_2_res::VT = sqrt(σ_y_2^2 + (params.cam4_resy*δ_y)^2) 
@@ -103,8 +103,8 @@ function likelihood_cam13(
     σ_x_1_res::VT = sqrt(σ_x_1^2 + (params.resx[cam_ind]*δ_x)^2)
     σ_y_1_res::VT = sqrt(σ_y_1^2 + (params.resy[cam_ind]*δ_y)^2) 
     
-    @inbounds σ_x_2::VT = sqrt.(params.tr_size_2[1]^2 + 10^-4*params.ang_spr_2[1]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
-    @inbounds σ_y_2::VT = sqrt.(params.tr_size_2[2]^2 + 10^-4*params.ang_spr_2[2]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
+    @inbounds σ_x_2::VT = sqrt.(params.tr_size[1]^2 + 10^-4*params.ang_spr_2[1]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
+    @inbounds σ_y_2::VT = sqrt.(params.tr_size[2]^2 + 10^-4*params.ang_spr_2[2]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
     
     σ_x_2_res::VT = sqrt(σ_x_2^2 + (params.resx[cam_ind]*δ_x)^2)
     σ_y_2_res::VT = sqrt(σ_y_2^2 + (params.resy[cam_ind]*δ_y)^2) 
@@ -165,7 +165,6 @@ function conv_tabl_discrete(cv_matrix::Array{F,2}, observed::Real, expected::Rea
     return cv_matrix[convert(Integer, observed+1), round(Integer, expected+1)]     
 end
 
-
 """
     Generate simulated event for the given parameters (camera 1-3). 
 """
@@ -196,8 +195,8 @@ function generate_image_cam13(
     σ_x_1_res = sqrt(σ_x_1^2 + (params.resx[cam_ind]*δ_x)^2)
     σ_y_1_res = sqrt(σ_y_1^2 + (params.resy[cam_ind]*δ_y)^2) 
     
-    @inbounds σ_x_2 = sqrt.(params.tr_size_2[1]^2 + 10^-4*params.ang_spr_2[1]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
-    @inbounds σ_y_2 = sqrt.(params.tr_size_2[2]^2 + 10^-4*params.ang_spr_2[2]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
+    @inbounds σ_x_2 = sqrt.(params.tr_size[1]^2 + 10^-4*params.ang_spr_2[1]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
+    @inbounds σ_y_2 = sqrt.(params.tr_size[2]^2 + 10^-4*params.ang_spr_2[2]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
     
     σ_x_2_res = sqrt(σ_x_2^2 + (params.resx[cam_ind]*δ_x)^2)
     σ_y_2_res = sqrt(σ_y_2^2 + (params.resy[cam_ind]*δ_y)^2) 
@@ -267,8 +266,8 @@ function generate_image_cam4(
     σ_x_1_res = sqrt(σ_x_1^2 + (params.cam4_resx*δ_x)^2)
     σ_y_1_res = sqrt(σ_y_1^2 + (params.cam4_resy*δ_y)^2) 
     
-    @inbounds σ_x_2 = sqrt.(params.tr_size_2[1]^2 + 10^-4*params.ang_spr_2[1]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
-    @inbounds σ_y_2 = sqrt.(params.tr_size_2[2]^2 + 10^-4*params.ang_spr_2[2]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
+    @inbounds σ_x_2 = sqrt.(params.tr_size[1]^2 + 10^-4*params.ang_spr_2[1]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
+    @inbounds σ_y_2 = sqrt.(params.tr_size[2]^2 + 10^-4*params.ang_spr_2[2]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
     
     σ_x_2_res = sqrt(σ_x_2^2 + (params.cam4_resx*δ_x)^2)
     σ_y_2_res = sqrt(σ_y_2^2 + (params.cam4_resy*δ_y)^2) 
@@ -330,5 +329,3 @@ function generate_event(
     
     return (cam_1 = img_1, cam_2 = img_2, cam_3 = img_3, cam_4 = img_4, population = population)
 end
-
-
