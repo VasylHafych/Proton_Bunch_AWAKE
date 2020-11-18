@@ -27,7 +27,7 @@ function generate_image_cam13(
     σ_x = sqrt(σ_x^2 + (params.resx[cam_ind]*δ_x).^2)
     σ_y = sqrt(σ_y^2 + (params.resy[cam_ind]*δ_y).^2)
     
-    bck_cumsum = exp.(cumsum(cv_matrix[:,1]))
+    bck_cumsum = cumsum(exp.(cv_matrix[:,1]))
     
     for pix_ind in CartesianIndices(image_matrix)
     

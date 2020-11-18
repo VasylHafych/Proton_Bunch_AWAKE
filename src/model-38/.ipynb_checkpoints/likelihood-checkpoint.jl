@@ -210,6 +210,7 @@ function generate_image_cam13(
     dist_2_x = Normal(μ_x, σ_x_2_res)
     dist_2_y = Normal(μ_y, σ_y_2_res)
     
+    bck_cumsum = cumsum(exp.(cv_matrix[:,1]))
     
     for pix_ind in CartesianIndices(image_matrix)
     
@@ -231,6 +232,17 @@ function generate_image_cam13(
 
         pix_prediction = params.mixt_pow*pix_prediction_1 + (1-params.mixt_pow)*pix_prediction_2
         pix_prediction = pix_prediction*light_coefficient
+        
+        if inc_noise
+            pix_prediction = rand(truncated(Normal(pix_prediction, 0.5+light_fluctuations*sqrt(pix_prediction)), 0, 4096))
+            background_tmp = bck_cumsum .- rand()
+            background_tmp[background_tmp .< 0 ] .= Inf
+            pix_prediction += argmin(background_tmp) - 1
+        end
+        
+        if include_satur && pix_prediction > 4095
+            pix_prediction = 4095
+        end
         
         image_matrix[pix_ind] = round(Int64, pix_prediction)
     end
@@ -302,6 +314,13 @@ function generate_image_cam4(
         pix_prediction = params.mixt_pow*pix_prediction_1 + (1-params.mixt_pow)*pix_prediction_2
         pix_prediction = pix_prediction*light_coefficient + params.cam4_ped
         
+        if inc_noise
+            pix_prediction = rand(truncated(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), 0.0, 4095)) 
+        end
+        
+        if include_satur && pix_prediction > 4095
+            pix_prediction = 4095
+        end
         
         image_matrix[pix_ind] = round(Int64, pix_prediction)
     end
