@@ -94,10 +94,10 @@ function def_prior()
     
     return NamedTupleDist(
         tr_size = [truncated(Normal(0.2, 0.04), 0.07, 0.25), truncated(Normal(0.2, 0.04), 0.07, 0.25)],
-        ang_spr = [truncated(Normal(4.0, 2.0), 3.0, 7.0), truncated(Normal(4.0, 2.0), 3.0, 7.0)],
+        ang_spr = [truncated(Normal(4.0, 2.0), 4.0, 7.0), truncated(Normal(4.0, 2.0), 4.0, 7.0)],
         ang_spr_2 = [truncated(Normal(4.0, 2.0), 1.0, 3.5), truncated(Normal(4.0, 2.0), 1.0, 3.5)],
-        mixt_pow =  0.5 .. 1.0 ,
-        waist = [Normal(2.9, 0.03)],
+        mixt_pow =  0.52 .. 1.0 ,
+        waist = [truncated(Normal(2.9, 0.03), 2.65, 3.3)],
         algmx = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
         algmy = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
         cam4_ped = 4.0 .. 40.0,
@@ -113,7 +113,7 @@ function def_prior()
         cam4_psy = truncated(Normal(120.0, 3*120.0*β3), 0., Inf), # original Pixel size (smaller) 89.4; Updated Pixel size (larger) 120.6
         light_amp  = [1.0 .. 13.0 , 1.0 .. 17.0, 1.0 .. 5.0], # 1.0 .. 5.0
         s_cam = [0.0, 1.478, 15.026, 23.1150],
-    );  
+    ); 
 end
 
 function main(event_ind)
