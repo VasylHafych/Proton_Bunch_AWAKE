@@ -16,12 +16,12 @@ using BAT
 include("../model-41/likelihood.jl")
 
 function def_conv_mat()
-    conv_mat = load("../../data/experiment/dataset_2/m2/conv-matrix-upd-2.jld2")
+    conv_mat = load("../../data/experiment/dataset_2/m1/conv-matrix-upd-2.jld2")
     return (cam_1 = conv_mat["cam_1"], cam_2 = conv_mat["cam_2"], cam_3 = conv_mat["cam_3"], cam_4 = conv_mat["cam_4"]) 
 end
 
 function def_data_vector(ev_ind)
-    images = load("../../data/experiment/dataset_2/m2/images-satur.jld2")
+    images = load("../../data/experiment/dataset_2/m1/images-satur.jld2")
     
     return [( cam_1 = images["cam_1"][i ,:,:], cam_2 = images["cam_2"][i ,:,:], 
             cam_3 = images["cam_3"][i ,:,:], cam_4 = images["cam_4"][i ,:,:], 
@@ -89,32 +89,32 @@ end
 
 function def_prior()
     β1 = 0.015
-    β2 = 0.008
-    β3 = 0.006 
-    
-    NamedTupleDist(
-        tr_size = [truncated(Normal(0.2, 0.04), 0.07, 0.25), truncated(Normal(0.2, 0.04), 0.07, 0.25)],
-        tr_size_2 = [truncated(Normal(0.2, 0.04), 0.07, 0.25), truncated(Normal(0.2, 0.04), 0.07, 0.25)],
-        ang_spr = [truncated(Normal(4.0, 2.0), 4.0, 7.0), truncated(Normal(4.0, 2.0), 4.0, 7.0)],
-        ang_spr_2 = [truncated(Normal(4.0, 2.0), 1.0, 3.5), truncated(Normal(4.0, 2.0), 1.0, 3.5)],
-        mixt_pow =  0.51 .. 1.0 ,
-        waist = [truncated(Normal(2.9, 0.03), 2.65, 3.3)],
-        waist_2 = [truncated(Normal(2.9, 0.03), 2.65, 3.3)],
-        algmx = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
-        algmy = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
-        cam4_ped = 4.0 .. 40.0,
-        cam4_light_fluct = 1.0 .. 3.0,
-        cam4_light_amp = 1.6 .. 9.9, 
-        resx = [truncated(Normal(1, 0.5), 0, Inf), truncated(Normal(2, 1), 0, Inf), truncated(Normal(1, 0.5), 0, Inf)], 
-        resy = [truncated(Normal(1, 0.5), 0, Inf), truncated(Normal(2, 1), 0, Inf), truncated(Normal(1, 0.5), 0, Inf)], 
-        cam4_resx = truncated(Normal(3, 1.5), 0, Inf),
-        cam4_resy = truncated(Normal(3, 1.5), 0, Inf),
-        psx = [truncated(Normal(27.1, 27.1*β1), 0., Inf), truncated(Normal(21.6, 21.6*β1), 0., Inf), truncated(Normal(114.0, 114.0*β2), 0., Inf)], # pixels are in microns
-        psy = [truncated(Normal(30.5, 30.5*β1), 0., Inf), truncated(Normal(23.4, 23.4*β1), 0., Inf), truncated(Normal(125.0, 125.0*β2), 0., Inf)],
-        cam4_psx = truncated(Normal(121.8, 3*121.8*β3), 0., Inf), # original Pixel size (smaller) 91.0; Updated Pixel size (larger) 121.2
-        cam4_psy = truncated(Normal(120.0, 3*120.0*β3), 0., Inf), # original Pixel size (smaller) 89.4; Updated Pixel size (larger) 120.6
-        light_amp  = [1.0 .. 13.0 , 1.0 .. 17.0, 1.0 .. 5.0], # 1.0 .. 5.0
-        s_cam = [0.0, 1.478, 15.026, 23.1150],
+    β2 = 0.0077
+    β3 = 0.0058 
+
+    return  NamedTupleDist(
+            tr_size = [truncated(Normal(0.2, 0.04), 0.07, 0.25), truncated(Normal(0.2, 0.04), 0.07, 0.25)],
+            tr_size_2 = [truncated(Normal(0.2, 0.04), 0.07, 0.25), truncated(Normal(0.2, 0.04), 0.07, 0.25)],
+            ang_spr = [truncated(Normal(4.0, 2.0), 4.0, 7.0), truncated(Normal(4.0, 2.0), 4.0, 7.0)],
+            ang_spr_2 = [truncated(Normal(4.0, 2.0), 1.0, 3.5), truncated(Normal(4.0, 2.0), 1.0, 3.5)],
+            mixt_pow =  0.52 .. 1.0 ,
+            waist = [truncated(Normal(2.9, 0.03), 2.65, 3.3)],
+            waist_2 = [truncated(Normal(2.9, 0.03), 2.65, 3.3)],
+            algmx = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
+            algmy = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
+            cam4_ped = 4.0 .. 40.0,
+            cam4_light_fluct = 1.0 .. 3.0,
+            cam4_light_amp = 1.6 .. 9.9, 
+            resx = [truncated(Normal(1, 0.5), 0, Inf), truncated(Normal(2, 1), 0, Inf), truncated(Normal(1, 0.5), 0, Inf)], 
+            resy = [truncated(Normal(1, 0.5), 0, Inf), truncated(Normal(2, 1), 0, Inf), truncated(Normal(1, 0.5), 0, Inf)], 
+            cam4_resx = truncated(Normal(3, 1.5), 0, Inf),
+            cam4_resy = truncated(Normal(3, 1.5), 0, Inf),
+            psx = [truncated(Normal(27.1, 27.1*β1), 0., Inf), truncated(Normal(21.6, 21.6*β1), 0., Inf), truncated(Normal(114.0, 114.0*β2), 0., Inf)], # pixels are in microns
+            psy = [truncated(Normal(30.5, 30.5*β1), 0., Inf), truncated(Normal(23.4, 23.4*β1), 0., Inf), truncated(Normal(125.0, 125.0*β2), 0., Inf)],
+            cam4_psx = truncated(Normal(121.8, 121.8*β3), 0., Inf), # original Pixel size (smaller) 91.0; Updated Pixel size (larger) 121.2
+            cam4_psy = truncated(Normal(120.0, 120.0*β3), 0., Inf), # original Pixel size (smaller) 89.4; Updated Pixel size (larger) 120.6
+            light_amp  = [1.0 .. 13.0 , 1.0 .. 17.0, 1.0 .. 5.0], # 1.0 .. 5.0
+            s_cam = [0.0, 1.478, 15.026, 23.1150],
     );  
 end
 
@@ -149,12 +149,12 @@ function main(event_ind)
             max_time = Inf,
         ).result
         
-        BAT.bat_write(PATH*"hc-$(event_ind[ind]).hdf5", unshaped.(samples))
+        BAT.bat_write(PATH*"lc-$(event_ind[ind]).hdf5", unshaped.(samples))
     end
     
     
 end
 
-ind_samples = [1, 113, 188, 2, 26, 281, 3, 311, 322, 357, 4, 435, 440, 442, 5, 72, 95]
+ind_samples = [1, 137, 151, 169, 2, 225, 262, 299, 3, 343, 355, 369, 4, 48, 5, 6, 7, 80]
 
 main(ind_samples)
