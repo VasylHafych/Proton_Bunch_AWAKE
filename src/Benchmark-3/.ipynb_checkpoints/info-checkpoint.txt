@@ -1,0 +1,7 @@
+1-st round of sampling with 2 Gaussian distributions. 
+
+Possible issues: 
+
+- Light fluctuation coefficient should be fixed at 2 at the last camera. 
+- Mixture coefficient should be from 0.5 - 1. 
+- Set limit on the transwersal size of the proton bunch 
