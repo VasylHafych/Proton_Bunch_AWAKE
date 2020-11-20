@@ -1,7 +1,5 @@
-1-st round of sampling with 2 Gaussian distributions. 
+Sampling with 2 Gaussian distributions in the angular spread. 
 
-Possible issues: 
-
-- Light fluctuation coefficient should be fixed at 2 at the last camera. 
-- Mixture coefficient should be from 0.5 - 1. 
-- Set limit on the transwersal size of the proton bunch 
+Note: 
+-- Used slightly overestimated uncertainty on the pixel size (cam #4)
+-- Posterior distribution on the pixel sizes is significantly different from the prior -> Possibly wrong model. 

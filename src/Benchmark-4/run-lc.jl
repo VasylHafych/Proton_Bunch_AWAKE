@@ -81,7 +81,7 @@ function def_settings()
         max_nsamples_per_cycle = 14000,
         max_nsteps_per_cycle = 14000,
         max_time_per_cycle = Inf,
-        max_ncycles = 140
+        max_ncycles = 130
     )
     
     return tuning, convergence, init, burnin 
@@ -93,29 +93,29 @@ function def_prior()
     β3 = 0.0058 
 
     return  NamedTupleDist(
-            tr_size = [truncated(Normal(0.2, 0.04), 0.07, 0.25), truncated(Normal(0.2, 0.04), 0.07, 0.25)],
-            tr_size_2 = [truncated(Normal(0.2, 0.04), 0.07, 0.25), truncated(Normal(0.2, 0.04), 0.07, 0.25)],
-            ang_spr = [truncated(Normal(4.0, 2.0), 4.0, 7.0), truncated(Normal(4.0, 2.0), 4.0, 7.0)],
-            ang_spr_2 = [truncated(Normal(4.0, 2.0), 1.0, 3.5), truncated(Normal(4.0, 2.0), 1.0, 3.5)],
-            mixt_pow =  0.52 .. 1.0 ,
-            waist = [truncated(Normal(2.9, 0.03), 2.65, 3.3)],
-            waist_2 = [truncated(Normal(2.9, 0.03), 2.65, 3.3)],
-            algmx = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
-            algmy = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
-            cam4_ped = 4.0 .. 40.0,
-            cam4_light_fluct = 1.0 .. 3.0,
-            cam4_light_amp = 1.6 .. 9.9, 
-            resx = [truncated(Normal(1, 0.5), 0, Inf), truncated(Normal(2, 1), 0, Inf), truncated(Normal(1, 0.5), 0, Inf)], 
-            resy = [truncated(Normal(1, 0.5), 0, Inf), truncated(Normal(2, 1), 0, Inf), truncated(Normal(1, 0.5), 0, Inf)], 
-            cam4_resx = truncated(Normal(3, 1.5), 0, Inf),
-            cam4_resy = truncated(Normal(3, 1.5), 0, Inf),
-            psx = [truncated(Normal(27.1, 27.1*β1), 0., Inf), truncated(Normal(21.6, 21.6*β1), 0., Inf), truncated(Normal(114.0, 114.0*β2), 0., Inf)], # pixels are in microns
-            psy = [truncated(Normal(30.5, 30.5*β1), 0., Inf), truncated(Normal(23.4, 23.4*β1), 0., Inf), truncated(Normal(125.0, 125.0*β2), 0., Inf)],
-            cam4_psx = truncated(Normal(121.8, 121.8*β3), 0., Inf), # original Pixel size (smaller) 91.0; Updated Pixel size (larger) 121.2
-            cam4_psy = truncated(Normal(120.0, 120.0*β3), 0., Inf), # original Pixel size (smaller) 89.4; Updated Pixel size (larger) 120.6
-            light_amp  = [1.0 .. 13.0 , 1.0 .. 17.0, 1.0 .. 5.0], # 1.0 .. 5.0
-            s_cam = [0.0, 1.478, 15.026, 23.1150],
-    );  
+        tr_size = [truncated(Normal(0.2, 0.04), 0.060, 0.25), truncated(Normal(0.2, 0.04), 0.060, 0.25)],
+        tr_size_2 = [truncated(Normal(0.2, 0.04), 0.065, 0.25), truncated(Normal(0.2, 0.04), 0.065, 0.25)],
+        ang_spr = [truncated(Normal(4.0, 2.0), 4.0, 7.0), truncated(Normal(4.0, 2.0), 4.0, 7.0)],
+        ang_spr_2 = [truncated(Normal(4.0, 2.0), 1.0, 3.5), truncated(Normal(4.0, 2.0), 1.0, 3.5)],
+        mixt_pow =  0.50 .. 1.0 ,
+        waist = [truncated(Normal(2.9, 0.03), 2.65, 3.3)],
+        waist_2 = [truncated(Normal(2.9, 0.03), 2.65, 3.3)],
+        algmx = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
+        algmy = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
+        cam4_ped = 4.0 .. 40.0,
+        cam4_light_fluct = 1.0 .. 3.0,
+        cam4_light_amp = 1.6 .. 9.9, 
+        resx = [truncated(Normal(1, 0.5), 0, Inf), truncated(Normal(2, 1), 0, Inf), truncated(Normal(1, 0.5), 0, Inf)], 
+        resy = [truncated(Normal(1, 0.5), 0, Inf), truncated(Normal(2, 1), 0, Inf), truncated(Normal(1, 0.5), 0, Inf)], 
+        cam4_resx = truncated(Normal(3, 1.5), 0, Inf),
+        cam4_resy = truncated(Normal(3, 1.5), 0, Inf),
+        psx = [truncated(Normal(27.1, 27.1*β1), 0., Inf), truncated(Normal(21.6, 21.6*β1), 0., Inf), truncated(Normal(114.0, 114.0*β2), 0., Inf)],
+        psy = [truncated(Normal(30.5, 30.5*β1), 0., Inf), truncated(Normal(23.4, 23.4*β1), 0., Inf), truncated(Normal(125.0, 125.0*β2), 0., Inf)],
+        cam4_psx = truncated(Normal(121.8, 121.8*β3), 0., Inf), 
+        cam4_psy = truncated(Normal(120.0, 120.0*β3), 0., Inf), 
+        light_amp  = [1.0 .. 13.0 , 1.0 .. 17.0, 1.0 .. 5.0], # 1.0 .. 5.0
+        s_cam = [0.0, 1.478, 15.026, 23.1150],
+    )  
 end
 
 function main(event_ind)
