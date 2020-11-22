@@ -147,10 +147,13 @@ function likelihood_cam13(
                 pix_prediction = pix_prediction*light_coefficient
 
                 if pix_prediction > max_pred_amp - 1
-                    pix_prediction -= pix_prediction - (max_pred_amp - 1)
+#                     pix_prediction -= pix_prediction - (max_pred_amp - 1)
+                    cv_vals = - Inf
+                else 
+                    cv_vals = cv_func(cv_matrix, image[pix_ind], pix_prediction)
                 end
                 
-                @inbounds cum_log_lik += cv_func(cv_matrix, image[pix_ind], pix_prediction)
+                @inbounds cum_log_lik += cv_vals #cv_func(cv_matrix, image[pix_ind], pix_prediction)
                 
             end
         end

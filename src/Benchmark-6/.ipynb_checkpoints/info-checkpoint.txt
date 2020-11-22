@@ -1,0 +1,3 @@
+Sampling with 2 Gaussian distributions in the angular spread, transversal size, and waist. Pixel size is fixed for all cameras. The resolution function is adjustable.
+
+Possible issue: x/y resolution should be the same. 
