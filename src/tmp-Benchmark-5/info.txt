@@ -1,0 +1,2 @@
+Sampling with 2 Gaussian distributions in the angular spread, transversal size, and waist. Pixel sizes are fixed for all cameras. Light fluctuations for IS2 is fixed to 2.0. Resolution function is fixed for the first 3 cameras. 
+

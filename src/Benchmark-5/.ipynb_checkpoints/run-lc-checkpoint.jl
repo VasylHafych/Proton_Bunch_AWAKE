@@ -28,13 +28,6 @@ function def_data_vector(ev_ind)
             population = images["charge"][i ,:][1],) for i in ev_ind]
 end
 
-# function def_rem_ind()
-#     images = load("../../data/experiment/dataset_2/m2/images-satur.jld2")
-#     ind_tmp = [26, 72, 322, 442, 281, 435, 113, 188, 357, 95, 311, 440]
-#     rem_ind = setdiff(eachindex(images["charge"]), ind_tmp)
-#     return rem_ind
-# end
-
 function log_lik_ndiff(e, cv_mat; 
         func = conv_tabl_discrete,
         n_threads = Threads.nthreads(),
@@ -103,7 +96,7 @@ function def_prior()
         algmx = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
         algmy = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
         cam4_ped = 4.0 .. 40.0,
-        cam4_light_fluct = 2.0,
+        cam4_light_fluct =  1.0 .. 3.0,
         cam4_light_amp = 1.6 .. 9.9, 
         resx = [1, 1, 1], # 23, 24, 25, 
         resy = [1, 1, 1], # 26,27, 28, 

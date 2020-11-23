@@ -282,8 +282,8 @@ function plot_projections(cv_matrix, event_tr, event_nt, params; isnontr = false
         ax[i,2].set_yticks([])
     end
 
-    ax[4,1].set_xlabel("x [pixel index]")
-    ax[4,2].set_xlabel("y [pixel index]")
+    ax[4,1].set_xlabel("y [pixel index]")
+    ax[4,2].set_xlabel("x [pixel index]")
 
     ax[1,1].set_ylabel("Cam. #1")
     ax[2,1].set_ylabel("Cam. #2")

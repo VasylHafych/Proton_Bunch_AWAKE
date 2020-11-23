@@ -103,7 +103,7 @@ function def_prior()
         algmx = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
         algmy = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
         cam4_ped = 4.0 .. 40.0,
-        cam4_light_fluct = 1.0 .. 3.0,
+        cam4_light_fluct = 2.0,
         cam4_light_amp = 1.6 .. 9.9, 
         resx = [1, 1, 1], # 23, 24, 25, 
         resy = [1, 1, 1], # 26,27, 28, 
@@ -115,7 +115,7 @@ function def_prior()
         cam4_psy = 120.0, # 38
         light_amp  = [1.0 .. 13.0 , 1.0 .. 17.0, 1.0 .. 5.0], # 1.0 .. 5.0
         s_cam = [0.0, 1.478, 15.026, 23.1150],
-    )
+    ) ;
 end
 
 function main(event_ind)

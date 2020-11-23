@@ -16,12 +16,12 @@ using BAT
 include("../model-41/likelihood.jl")
 
 function def_conv_mat()
-    conv_mat = load("../../data/experiment/dataset_2/m2/conv-matrix-upd-2.jld2")
+    conv_mat = load("../../data/experiment/dataset_2/m1/conv-matrix-upd-2.jld2")
     return (cam_1 = conv_mat["cam_1"], cam_2 = conv_mat["cam_2"], cam_3 = conv_mat["cam_3"], cam_4 = conv_mat["cam_4"]) 
 end
 
 function def_data_vector(ev_ind)
-    images = load("../../data/experiment/dataset_2/m2/images-satur.jld2")
+    images = load("../../data/experiment/dataset_2/m1/images-satur.jld2")
     
     return [( cam_1 = images["cam_1"][i ,:,:], cam_2 = images["cam_2"][i ,:,:], 
             cam_3 = images["cam_3"][i ,:,:], cam_4 = images["cam_4"][i ,:,:], 
@@ -88,13 +88,13 @@ function def_settings()
 end
 
 function def_prior()
-    β1 = 0.015
+    β1= 0.015
     β2 = 0.0077
     β3 = 0.0058 
 
-    return NamedTupleDist(
-        tr_size = [truncated(Normal(0.2, 0.04), 0.06, 0.19), truncated(Normal(0.2, 0.04), 0.06, 0.19)],
-        tr_size_2 = [truncated(Normal(0.2, 0.04), 0.06, 0.19), truncated(Normal(0.2, 0.04), 0.06, 0.19)],
+    return  NamedTupleDist(
+        tr_size = [truncated(Normal(0.2, 0.04), 0.03, 0.16), truncated(Normal(0.2, 0.04), 0.03, 0.16)],
+        tr_size_2 = [truncated(Normal(0.2, 0.04), 0.03, 0.16), truncated(Normal(0.2, 0.04), 0.03, 0.16)],
         ang_spr = [truncated(Normal(4.0, 2.0), 4.0, 7.0), truncated(Normal(4.0, 2.0), 4.0, 7.0)],
         ang_spr_2 = [truncated(Normal(4.0, 2.0), 1.0, 4.0), truncated(Normal(4.0, 2.0), 1.0, 4.0)],
         mixt_pow =  0.50 .. 1.0 ,
@@ -103,7 +103,7 @@ function def_prior()
         algmx = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
         algmy = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
         cam4_ped = 4.0 .. 40.0,
-        cam4_light_fluct = 1.0 .. 3.0,
+        cam4_light_fluct = 2.0,
         cam4_light_amp = 1.6 .. 9.9, 
         resx = [1, 1, 1], # 23, 24, 25, 
         resy = [1, 1, 1], # 26,27, 28, 
@@ -149,12 +149,12 @@ function main(event_ind)
             max_time = Inf,
         ).result
         
-        BAT.bat_write(PATH*"hc-$(event_ind[ind]).hdf5", unshaped.(samples))
+        BAT.bat_write(PATH*"lc-$(event_ind[ind]).hdf5", unshaped.(samples))
     end
     
     
 end
 
-ind_samples = [1, 113, 188, 2, 26, 281, 3, 311, 322, 357, 4, 435, 440, 442, 5, 72, 95]
+ind_samples = [1, 137, 151, 169, 2, 225, 262, 299, 3, 343, 355, 369, 4, 48, 5, 6, 7, 80]
 
 main(ind_samples)
