@@ -16,12 +16,12 @@ using BAT
 include("../model-41/likelihood.jl")
 
 function def_conv_mat()
-    conv_mat = load("../../data/experiment/dataset_2/m1/conv-matrix-upd-2.jld2")
+    conv_mat = load("../../data/experiment/dataset_2/m2/conv-matrix-upd-2.jld2")
     return (cam_1 = conv_mat["cam_1"], cam_2 = conv_mat["cam_2"], cam_3 = conv_mat["cam_3"], cam_4 = conv_mat["cam_4"]) 
 end
 
 function def_data_vector(ev_ind)
-    images = load("../../data/experiment/dataset_2/m1/images-satur.jld2")
+    images = load("../../data/experiment/dataset_2/m2/images-satur.jld2")
     
     return [( cam_1 = images["cam_1"][i ,:,:], cam_2 = images["cam_2"][i ,:,:], 
             cam_3 = images["cam_3"][i ,:,:], cam_4 = images["cam_4"][i ,:,:], 
@@ -88,25 +88,25 @@ function def_settings()
 end
 
 function def_prior()
-    β1= 0.015
+    β1 = 0.015
     β2 = 0.0077
     β3 = 0.0058 
 
-    return  NamedTupleDist(
-        tr_size = [truncated(Normal(0.2, 0.04), 0.03, 0.19), truncated(Normal(0.2, 0.04), 0.03, 0.19)],
-        tr_size_2 = [truncated(Normal(0.2, 0.04), 0.03, 0.19), truncated(Normal(0.2, 0.04), 0.03, 0.19)],
+    return NamedTupleDist(
+        tr_size = [truncated(Normal(0.2, 0.04), 0.06, 0.19), truncated(Normal(0.2, 0.04), 0.06, 0.19)],
+        tr_size_2 = [truncated(Normal(0.2, 0.04), 0.06, 0.19), truncated(Normal(0.2, 0.04), 0.06, 0.19)],
         ang_spr = [truncated(Normal(4.0, 2.0), 4.0, 7.0), truncated(Normal(4.0, 2.0), 4.0, 7.0)],
-        ang_spr_2 = [truncated(Normal(4.0, 2.0), 0.5, 4.0), truncated(Normal(4.0, 2.0), 0.5, 4.0)],
-        mixt_pow =  0.52 .. 1.0 ,
-        waist = [truncated(Normal(2.9, 0.03), 2.9, 3.5)],
-        waist_2 = [truncated(Normal(2.9, 0.03), 2.65, 3.0)], # 11
+        ang_spr_2 = [truncated(Normal(4.0, 2.0), 1.0, 4.0), truncated(Normal(4.0, 2.0), 1.0, 4.0)],
+        mixt_pow =  0.50 .. 1.0 ,
+        waist = [truncated(Normal(2.9, 0.03), 2.65, 3.5)],
+        waist_2 = [truncated(Normal(2.9, 0.03), 2.65, 3.5)], # 11
         algmx = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
         algmy = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
-        cam4_ped = 4.0 .. 40.0, # 20
-        cam4_light_fluct = 1.8, # 21
-        cam4_light_amp = 1.6 .. 9.9, # 22
-        resx = [truncated(Normal(1, 0.5), 0, Inf), truncated(Normal(1, 0.5), 0, Inf), truncated(Normal(1, 0.5), 0, Inf)], 
-        resy = [truncated(Normal(1, 0.5), 0, Inf), truncated(Normal(1, 0.5), 0, Inf), truncated(Normal(1, 0.5), 0, Inf)], 
+        cam4_ped = 4.0 .. 40.0,
+        cam4_light_fluct = 1.0 .. 3.0,
+        cam4_light_amp = 1.6 .. 9.9, 
+        resx = [1, 1, 1], # 23, 24, 25, 
+        resy = [1, 1, 1], # 26,27, 28, 
         cam4_resx = truncated(Normal(3, 1.5), 0, Inf),
         cam4_resy = truncated(Normal(3, 1.5), 0, Inf), 
         psx = [27.1, 21.6, 114.0], # 31, 32, 33
@@ -115,7 +115,7 @@ function def_prior()
         cam4_psy = 120.0, # 38
         light_amp  = [1.0 .. 13.0 , 1.0 .. 17.0, 1.0 .. 5.0], # 1.0 .. 5.0
         s_cam = [0.0, 1.478, 15.026, 23.1150],
-    ) ; # used in sampling
+    )
 end
 
 function main(event_ind)
@@ -125,7 +125,7 @@ function main(event_ind)
     conv_mat = def_conv_mat()
     tuning, convergence, init, burnin  = def_settings()
     nsamples, nchains = 10^6, 4
-    PATH = "../../data/sampling_results/Benchmark-6/"
+    PATH = "../../data/sampling_results/Benchmark-5/"
     
     for (ind, vals) in enumerate(data)
         
@@ -149,12 +149,12 @@ function main(event_ind)
             max_time = Inf,
         ).result
         
-        BAT.bat_write(PATH*"lc-$(event_ind[ind]).hdf5", unshaped.(samples))
+        BAT.bat_write(PATH*"hc-$(event_ind[ind]).hdf5", unshaped.(samples))
     end
     
     
 end
 
-ind_samples = [1, 137, 151, 169, 2, 225, 262, 299, 3, 343, 355, 369, 4, 48, 5, 6, 7, 80]
+ind_samples = [1, 113, 188, 2, 26, 281, 3, 311, 322, 357, 4, 435, 440, 442, 5, 72, 95]
 
 main(ind_samples)

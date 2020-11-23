@@ -28,13 +28,6 @@ function def_data_vector(ev_ind)
             population = images["charge"][i ,:][1],) for i in ev_ind]
 end
 
-# function def_rem_ind()
-#     images = load("../../data/experiment/dataset_2/m2/images-satur.jld2")
-#     ind_tmp = [26, 72, 322, 442, 281, 435, 113, 188, 357, 95, 311, 440]
-#     rem_ind = setdiff(eachindex(images["charge"]), ind_tmp)
-#     return rem_ind
-# end
-
 function log_lik_ndiff(e, cv_mat; 
         func = conv_tabl_discrete,
         n_threads = Threads.nthreads(),
@@ -93,20 +86,20 @@ function def_prior()
     β3 = 0.0058 
 
     return  NamedTupleDist(
-        tr_size = [truncated(Normal(0.2, 0.04), 0.03, 0.19), truncated(Normal(0.2, 0.04), 0.03, 0.19)],
-        tr_size_2 = [truncated(Normal(0.2, 0.04), 0.03, 0.19), truncated(Normal(0.2, 0.04), 0.03, 0.19)],
+        tr_size = [truncated(Normal(0.2, 0.04), 0.03, 0.16), truncated(Normal(0.2, 0.04), 0.03, 0.16)],
+        tr_size_2 = [truncated(Normal(0.2, 0.04), 0.03, 0.16), truncated(Normal(0.2, 0.04), 0.03, 0.16)],
         ang_spr = [truncated(Normal(4.0, 2.0), 4.0, 7.0), truncated(Normal(4.0, 2.0), 4.0, 7.0)],
-        ang_spr_2 = [truncated(Normal(4.0, 2.0), 0.5, 4.0), truncated(Normal(4.0, 2.0), 0.5, 4.0)],
-        mixt_pow =  0.52 .. 1.0 ,
-        waist = [truncated(Normal(2.9, 0.03), 2.9, 3.5)],
-        waist_2 = [truncated(Normal(2.9, 0.03), 2.65, 3.0)], # 11
+        ang_spr_2 = [truncated(Normal(4.0, 2.0), 1.0, 4.0), truncated(Normal(4.0, 2.0), 1.0, 4.0)],
+        mixt_pow =  0.50 .. 1.0 ,
+        waist = [truncated(Normal(2.9, 0.03), 2.65, 3.5)],
+        waist_2 = [truncated(Normal(2.9, 0.03), 2.65, 3.5)], # 11
         algmx = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
         algmy = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
-        cam4_ped = 4.0 .. 40.0, # 20
-        cam4_light_fluct = 1.8, # 21
-        cam4_light_amp = 1.6 .. 9.9, # 22
-        resx = [truncated(Normal(1, 0.5), 0, Inf), truncated(Normal(1, 0.5), 0, Inf), truncated(Normal(1, 0.5), 0, Inf)], 
-        resy = [truncated(Normal(1, 0.5), 0, Inf), truncated(Normal(1, 0.5), 0, Inf), truncated(Normal(1, 0.5), 0, Inf)], 
+        cam4_ped = 4.0 .. 40.0,
+        cam4_light_fluct =  1.0 .. 3.0,
+        cam4_light_amp = 1.6 .. 9.9, 
+        resx = [1, 1, 1], # 23, 24, 25, 
+        resy = [1, 1, 1], # 26,27, 28, 
         cam4_resx = truncated(Normal(3, 1.5), 0, Inf),
         cam4_resy = truncated(Normal(3, 1.5), 0, Inf), 
         psx = [27.1, 21.6, 114.0], # 31, 32, 33
@@ -115,7 +108,7 @@ function def_prior()
         cam4_psy = 120.0, # 38
         light_amp  = [1.0 .. 13.0 , 1.0 .. 17.0, 1.0 .. 5.0], # 1.0 .. 5.0
         s_cam = [0.0, 1.478, 15.026, 23.1150],
-    ) ; # used in sampling
+    )
 end
 
 function main(event_ind)
@@ -125,7 +118,7 @@ function main(event_ind)
     conv_mat = def_conv_mat()
     tuning, convergence, init, burnin  = def_settings()
     nsamples, nchains = 10^6, 4
-    PATH = "../../data/sampling_results/Benchmark-6/"
+    PATH = "../../data/sampling_results/Benchmark-5/"
     
     for (ind, vals) in enumerate(data)
         

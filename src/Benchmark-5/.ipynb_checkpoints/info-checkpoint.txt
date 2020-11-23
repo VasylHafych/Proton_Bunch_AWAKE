@@ -1,2 +1,3 @@
 Sampling with 2 Gaussian distributions in the angular spread, transversal size, and waist. Pixel sizes are fixed for all cameras. Resolution function is fixed for the first 3 cameras. 
 
+Proton bunch is approximated using CDF function. 

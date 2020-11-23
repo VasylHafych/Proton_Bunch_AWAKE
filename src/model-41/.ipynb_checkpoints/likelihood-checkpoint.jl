@@ -29,14 +29,17 @@ function likelihood_cam4(
     σ_x_2_res::VT = sqrt(σ_x_2^2 + (params.cam4_resx*δ_x)^2)
     σ_y_2_res::VT = sqrt(σ_y_2^2 + (params.cam4_resy*δ_y)^2) 
     
-#     dist_x = MixtureModel(Normal[Normal(μ_x, σ_x_1_res), Normal(μ_x, σ_x_2_res)], [params.mixt_pow, 1-params.mixt_pow])
-#     dist_y = MixtureModel(Normal[Normal(μ_y, σ_y_1_res), Normal(μ_y, σ_y_2_res)], [params.mixt_pow, 1-params.mixt_pow])
-    
     dist_1_x = Normal(μ_x, σ_x_1_res)
     dist_1_y = Normal(μ_y, σ_y_1_res)
     
     dist_2_x = Normal(μ_x, σ_x_2_res)
     dist_2_y = Normal(μ_y, σ_y_2_res)
+    
+    x_edges = range(0, length = size(image)[1]+1, step=δ_x)
+    y_edges = range(0, length = size(image)[2]+1, step=δ_y)
+    
+    z1 = diff(cdf.(dist_1_x, x_edges)) * diff(cdf.(dist_1_y, y_edges))'
+    z2 = diff(cdf.(dist_2_x, x_edges)) * diff(cdf.(dist_2_y, y_edges))'
     
     Threads.@threads for t in eachindex(tot_loglik)
         
@@ -44,28 +47,11 @@ function likelihood_cam4(
         
         @inbounds for pix_ind in CartesianIndices(image)[t:n_threads:length(image)] 
             @inbounds if !isnan(image[pix_ind])
-                
-                @inbounds x_edge = pix_ind.I[1] * δ_x
-                @inbounds y_edge = pix_ind.I[2] * δ_y
-
-#                 pix_prediction = cdf(dist_x, x_edge) - cdf(dist_x, x_edge - δ_x)
-#                 pix_prediction *= cdf(dist_y, y_edge) - cdf(dist_y, y_edge - δ_y)
-                
-                right_tmp, left_tmp = pdf(dist_1_x, x_edge), pdf(dist_1_x, x_edge - δ_x)
-                pix_prediction_1 = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
-                right_tmp, left_tmp = pdf(dist_1_y, y_edge), pdf(dist_1_y, y_edge - δ_y)
-                pix_prediction_1 *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
-                
-                right_tmp, left_tmp = pdf(dist_2_x, x_edge), pdf(dist_2_x, x_edge - δ_x)
-                pix_prediction_2 = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
-                right_tmp, left_tmp = pdf(dist_2_y, y_edge), pdf(dist_2_y, y_edge - δ_y)
-                pix_prediction_2 *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
-                
-                pix_prediction = params.mixt_pow*pix_prediction_1 + (1-params.mixt_pow)*pix_prediction_2
+                                
+                pix_prediction = params.mixt_pow*z1[pix_ind] + (1-params.mixt_pow)*z2[pix_ind]
                 pix_prediction = pix_prediction*light_coefficient + params.cam4_ped
                 
-#                 @inbounds cum_log_lik += logpdf(truncated(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), 0.0, 4096.0), image[pix_ind]) # leads to -Inf
-                @inbounds cum_log_lik += logpdf(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), image[pix_ind]) # significantly speeds up auto diff
+                @inbounds cum_log_lik += logpdf(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), image[pix_ind]) 
                 
             end
         end
@@ -109,14 +95,17 @@ function likelihood_cam13(
     σ_x_2_res::VT = sqrt(σ_x_2^2 + (params.resx[cam_ind]*δ_x)^2)
     σ_y_2_res::VT = sqrt(σ_y_2^2 + (params.resy[cam_ind]*δ_y)^2) 
     
-#     dist_x = MixtureModel(Normal[Normal(μ_x, σ_x_1_res), Normal(μ_x, σ_x_2_res)], [params.mixt_pow, 1-params.mixt_pow])
-#     dist_y = MixtureModel(Normal[Normal(μ_y, σ_y_1_res), Normal(μ_y, σ_y_2_res)], [params.mixt_pow, 1-params.mixt_pow])
-    
     dist_1_x = Normal(μ_x, σ_x_1_res)
     dist_1_y = Normal(μ_y, σ_y_1_res)
     
     dist_2_x = Normal(μ_x, σ_x_2_res)
     dist_2_y = Normal(μ_y, σ_y_2_res)
+    
+    x_edges = range(0, length = size(image)[1]+1, step=δ_x)
+    y_edges = range(0, length = size(image)[2]+1, step=δ_y)
+    
+    z1 = diff(cdf.(dist_1_x, x_edges)) * diff(cdf.(dist_1_y, y_edges))'
+    z2 = diff(cdf.(dist_2_x, x_edges)) * diff(cdf.(dist_2_y, y_edges))'
     
     max_pred_amp = size(cv_matrix)[2]-1
     
@@ -127,33 +116,16 @@ function likelihood_cam13(
         @inbounds for pix_ind in CartesianIndices(image)[t:n_threads:length(image)] 
             @inbounds if !isnan(image[pix_ind])
                 
-                @inbounds x_edge = pix_ind.I[1] * δ_x
-                @inbounds y_edge = pix_ind.I[2] * δ_y
-
-#                 pix_prediction = cdf(dist_x, x_edge) - cdf(dist_x, x_edge - δ_x)
-#                 pix_prediction *= cdf(dist_y, y_edge) - cdf(dist_y, y_edge - δ_y)
-                
-                right_tmp, left_tmp = pdf(dist_1_x, x_edge), pdf(dist_1_x, x_edge - δ_x)
-                pix_prediction_1 = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
-                right_tmp, left_tmp = pdf(dist_1_y, y_edge), pdf(dist_1_y, y_edge - δ_y)
-                pix_prediction_1 *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
-                
-                right_tmp, left_tmp = pdf(dist_2_x, x_edge), pdf(dist_2_x, x_edge - δ_x)
-                pix_prediction_2 = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
-                right_tmp, left_tmp = pdf(dist_2_y, y_edge), pdf(dist_2_y, y_edge - δ_y)
-                pix_prediction_2 *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
-
-                pix_prediction = params.mixt_pow*pix_prediction_1 + (1-params.mixt_pow)*pix_prediction_2
+                pix_prediction = params.mixt_pow*z1[pix_ind] + (1-params.mixt_pow)*z2[pix_ind]
                 pix_prediction = pix_prediction*light_coefficient
 
                 if pix_prediction > max_pred_amp - 1
-#                     pix_prediction -= pix_prediction - (max_pred_amp - 1)
                     cv_vals = - Inf
                 else 
                     cv_vals = cv_func(cv_matrix, image[pix_ind], pix_prediction)
                 end
                 
-                @inbounds cum_log_lik += cv_vals #cv_func(cv_matrix, image[pix_ind], pix_prediction)
+                @inbounds cum_log_lik += cv_vals
                 
             end
         end
@@ -204,36 +176,23 @@ function generate_image_cam13(
     σ_x_2_res = sqrt(σ_x_2^2 + (params.resx[cam_ind]*δ_x)^2)
     σ_y_2_res = sqrt(σ_y_2^2 + (params.resy[cam_ind]*δ_y)^2) 
     
-#     dist_x = MixtureModel(Normal[Normal(μ_x, σ_x_1_res), Normal(μ_x, σ_x_2_res)], [params.mixt_pow, 1-params.mixt_pow])
-#     dist_y = MixtureModel(Normal[Normal(μ_y, σ_y_1_res), Normal(μ_y, σ_y_2_res)], [params.mixt_pow, 1-params.mixt_pow])
-    
     dist_1_x = Normal(μ_x, σ_x_1_res)
     dist_1_y = Normal(μ_y, σ_y_1_res)
     
     dist_2_x = Normal(μ_x, σ_x_2_res)
     dist_2_y = Normal(μ_y, σ_y_2_res)
     
+    x_edges = range(0, length = Base.size(image_matrix)[1]+1, step=δ_x)
+    y_edges = range(0, length = Base.size(image_matrix)[2]+1, step=δ_y)
+    
+    z1 = diff(cdf.(dist_1_x, x_edges)) * diff(cdf.(dist_1_y, y_edges))'
+    z2 = diff(cdf.(dist_2_x, x_edges)) * diff(cdf.(dist_2_y, y_edges))'
+    
     bck_cumsum = cumsum(exp.(cv_matrix[:,1]))
     
     for pix_ind in CartesianIndices(image_matrix)
-    
-        @inbounds x_edge = pix_ind.I[1] * δ_x
-        @inbounds y_edge = pix_ind.I[2] * δ_y
 
-#                 pix_prediction = cdf(dist_x, x_edge) - cdf(dist_x, x_edge - δ_x)
-#                 pix_prediction *= cdf(dist_y, y_edge) - cdf(dist_y, y_edge - δ_y)
-
-        right_tmp, left_tmp = pdf(dist_1_x, x_edge), pdf(dist_1_x, x_edge - δ_x)
-        pix_prediction_1 = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
-        right_tmp, left_tmp = pdf(dist_1_y, y_edge), pdf(dist_1_y, y_edge - δ_y)
-        pix_prediction_1 *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
-
-        right_tmp, left_tmp = pdf(dist_2_x, x_edge), pdf(dist_2_x, x_edge - δ_x)
-        pix_prediction_2 = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
-        right_tmp, left_tmp = pdf(dist_2_y, y_edge), pdf(dist_2_y, y_edge - δ_y)
-        pix_prediction_2 *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
-
-        pix_prediction = params.mixt_pow*pix_prediction_1 + (1-params.mixt_pow)*pix_prediction_2
+        pix_prediction = params.mixt_pow*z1[pix_ind] + (1-params.mixt_pow)*z2[pix_ind]
         pix_prediction = pix_prediction*light_coefficient
         
         if inc_noise
@@ -296,25 +255,15 @@ function generate_image_cam4(
     dist_2_x = Normal(μ_x, σ_x_2_res)
     dist_2_y = Normal(μ_y, σ_y_2_res)
     
-    for pix_ind in CartesianIndices(image_matrix)
+    x_edges = range(0, length = Base.size(image_matrix)[1]+1, step=δ_x)
+    y_edges = range(0, length = Base.size(image_matrix)[2]+1, step=δ_y)
     
-        @inbounds x_edge = pix_ind.I[1] * δ_x
-        @inbounds y_edge = pix_ind.I[2] * δ_y
-
-#                 pix_prediction = cdf(dist_x, x_edge) - cdf(dist_x, x_edge - δ_x)
-#                 pix_prediction *= cdf(dist_y, y_edge) - cdf(dist_y, y_edge - δ_y)
-
-        right_tmp, left_tmp = pdf(dist_1_x, x_edge), pdf(dist_1_x, x_edge - δ_x)
-        pix_prediction_1 = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
-        right_tmp, left_tmp = pdf(dist_1_y, y_edge), pdf(dist_1_y, y_edge - δ_y)
-        pix_prediction_1 *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
-
-        right_tmp, left_tmp = pdf(dist_2_x, x_edge), pdf(dist_2_x, x_edge - δ_x)
-        pix_prediction_2 = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
-        right_tmp, left_tmp = pdf(dist_2_y, y_edge), pdf(dist_2_y, y_edge - δ_y)
-        pix_prediction_2 *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
-
-        pix_prediction = params.mixt_pow*pix_prediction_1 + (1-params.mixt_pow)*pix_prediction_2
+    z1 = diff(cdf.(dist_1_x, x_edges)) * diff(cdf.(dist_1_y, y_edges))'
+    z2 = diff(cdf.(dist_2_x, x_edges)) * diff(cdf.(dist_2_y, y_edges))'
+    
+    for pix_ind in CartesianIndices(image_matrix)
+        
+        pix_prediction = params.mixt_pow*z1[pix_ind] + (1-params.mixt_pow)*z2[pix_ind]
         pix_prediction = pix_prediction*light_coefficient + params.cam4_ped
         
         if inc_noise
