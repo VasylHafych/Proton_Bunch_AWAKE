@@ -5,8 +5,7 @@ function likelihood_cam4(
         cam_ind::Integer;
         n_threads::Integer = Threads.nthreads()
     ) where {F <: AbstractFloat}
-   
-
+    
     VT = eltype(params.tr_size)
     tot_loglik::Array{VT} = zeros(VT, n_threads)    
     light_coefficient::VT = params.cam4_light_amp * 10^5
