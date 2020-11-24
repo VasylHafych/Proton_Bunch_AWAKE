@@ -210,6 +210,10 @@ function plot_projections(cv_matrix, event_tr, event_nt, params; isnontr = false
     alpha_1 = 0.005
     alpha_2 = 0.995
     
+    color_1 = "darkgray"
+    color_2 = "k"
+    color_3 = "red"
+    
     median_event = generate_event(params, 
         event_nt.population, cv_matrix; 
         inc_noise=false, 
@@ -228,11 +232,11 @@ function plot_projections(cv_matrix, event_tr, event_nt, params; isnontr = false
         xedges = 1:length(ycounts_tr)
         
         if isnontr
-            ax[i,1].step(xedges, ycounts_nt, color="darkgray", where="mid", zorder=0)
+            ax[i,1].step(xedges, ycounts_nt, color=color_1, where="mid", zorder=0)
         end
         
         if istrunc
-            ax[i,1].fill_between(xedges, ycounts_tr, step="mid", color="darkgray", alpha=1)
+            ax[i,1].fill_between(xedges, ycounts_tr, step="mid", color=color_1, alpha=0.8)
         end
 
         if i != 4
@@ -245,7 +249,7 @@ function plot_projections(cv_matrix, event_tr, event_nt, params; isnontr = false
             fluct_down = median_sum .- [quantile(j, 0.025) for j in fluct]
         end
 
-        ax[i,1].errorbar(xedges, median_sum, yerr=[fluct_down, fluct_up], ms=2.2, fmt=".", color="darkblue", ecolor="red",  capthick=0.5, capsize=1.5, linewidth=0.5)
+        ax[i,1].errorbar(xedges, median_sum, yerr=[fluct_down, fluct_up], ms=2.2, fmt=".", color=color_2, ecolor=color_3,  capthick=0.5, capsize=1.5, linewidth=0.5)
 
         ax[i,1].set_ylim(bottom=0.0)
         ax[i,1].set_xlim(minimum(xedges), maximum(xedges))
@@ -257,10 +261,10 @@ function plot_projections(cv_matrix, event_tr, event_nt, params; isnontr = false
         xedges = 1:length(ycounts_tr)
 
         if isnontr
-            ax[i,2].step(xedges, ycounts_nt, color="darkgray", where="mid", zorder=0)
+            ax[i,2].step(xedges, ycounts_nt, color=color_1, where="mid", zorder=0)
         end
         if istrunc
-            ax[i,2].fill_between(xedges, ycounts_tr, step="mid", color="darkgray", alpha=1)
+            ax[i,2].fill_between(xedges, ycounts_tr, step="mid", color=color_1, alpha=0.8)
         end
 
         if i != 4
@@ -273,7 +277,7 @@ function plot_projections(cv_matrix, event_tr, event_nt, params; isnontr = false
             fluct_down = median_sum .- [quantile(j, 0.025) for j in fluct];
         end
 
-        ax[i,2].errorbar(xedges, median_sum, yerr=[fluct_down, fluct_up], ms=2.2, fmt=".", color="darkblue", ecolor="red",  capthick=0.5, capsize=1.5, linewidth=0.5)
+        ax[i,2].errorbar(xedges, median_sum, yerr=[fluct_down, fluct_up], ms=2.2, fmt=".", color=color_2, ecolor=color_3,  capthick=0.5, capsize=1.5, linewidth=0.5)
 
         ax[i,2].set_ylim(bottom=0.0)
         ax[i,2].set_xlim(minimum(xedges), maximum(xedges))
@@ -282,13 +286,13 @@ function plot_projections(cv_matrix, event_tr, event_nt, params; isnontr = false
         ax[i,2].set_yticks([])
     end
 
-    ax[4,1].set_xlabel("y [pixel index]")
-    ax[4,2].set_xlabel("x [pixel index]")
+    ax[4,1].set_xlabel("y (pixel index)")
+    ax[4,2].set_xlabel("x (pixel index)")
 
     ax[1,1].set_ylabel("Cam. #1")
     ax[2,1].set_ylabel("Cam. #2")
     ax[3,1].set_ylabel("Cam. #3")
     ax[4,1].set_ylabel("Cam. #4")
 
-    fig.text(0.08, 0.5, "Integrated Light Intensity [a.u.]", va="center", rotation="vertical")
+    fig.text(0.08, 0.5, "Integrated Light Intensity (a.u.)", va="center", rotation="vertical")
 end

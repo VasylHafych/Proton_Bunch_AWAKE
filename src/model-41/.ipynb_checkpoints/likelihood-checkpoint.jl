@@ -34,11 +34,11 @@ function likelihood_cam4(
     dist_2_x = Normal(μ_x, σ_x_2_res)
     dist_2_y = Normal(μ_y, σ_y_2_res)
     
-    x_edges = range(0, length = size(image)[1]+1, step=δ_x)
-    y_edges = range(0, length = size(image)[2]+1, step=δ_y)
+    x_edges = range(0, length = size(image)[2]+1, step=δ_x) # should be δ_x
+    y_edges = range(0, length = size(image)[1]+1, step=δ_y) # should be δ_y
     
-    z1 = diff(cdf.(dist_1_x, x_edges)) * diff(cdf.(dist_1_y, y_edges))'
-    z2 = diff(cdf.(dist_2_x, x_edges)) * diff(cdf.(dist_2_y, y_edges))'
+    z1 = diff(cdf.(dist_1_y, y_edges)) * diff(cdf.(dist_1_x, x_edges))' # sigmax and sigmay will be mixed. 
+    z2 = diff(cdf.(dist_2_y, y_edges)) * diff(cdf.(dist_2_x, x_edges))'
     
     Threads.@threads for t in eachindex(tot_loglik)
         
@@ -100,11 +100,11 @@ function likelihood_cam13(
     dist_2_x = Normal(μ_x, σ_x_2_res)
     dist_2_y = Normal(μ_y, σ_y_2_res)
     
-    x_edges = range(0, length = size(image)[1]+1, step=δ_x)
-    y_edges = range(0, length = size(image)[2]+1, step=δ_y)
+    x_edges = range(0, length = size(image)[2]+1, step=δ_x) 
+    y_edges = range(0, length = size(image)[1]+1, step=δ_y) 
     
-    z1 = diff(cdf.(dist_1_x, x_edges)) * diff(cdf.(dist_1_y, y_edges))'
-    z2 = diff(cdf.(dist_2_x, x_edges)) * diff(cdf.(dist_2_y, y_edges))'
+    z1 = diff(cdf.(dist_1_y, y_edges)) * diff(cdf.(dist_1_x, x_edges))' 
+    z2 = diff(cdf.(dist_2_y, y_edges)) * diff(cdf.(dist_2_x, x_edges))'
     
     max_pred_amp = size(cv_matrix)[2]-1
     
@@ -181,11 +181,11 @@ function generate_image_cam13(
     dist_2_x = Normal(μ_x, σ_x_2_res)
     dist_2_y = Normal(μ_y, σ_y_2_res)
     
-    x_edges = range(0, length = Base.size(image_matrix)[1]+1, step=δ_x)
-    y_edges = range(0, length = Base.size(image_matrix)[2]+1, step=δ_y)
+    x_edges = range(0, length = size(image)[2]+1, step=δ_x)
+    y_edges = range(0, length = size(image)[1]+1, step=δ_y) 
     
-    z1 = diff(cdf.(dist_1_x, x_edges)) * diff(cdf.(dist_1_y, y_edges))'
-    z2 = diff(cdf.(dist_2_x, x_edges)) * diff(cdf.(dist_2_y, y_edges))'
+    z1 = diff(cdf.(dist_1_y, y_edges)) * diff(cdf.(dist_1_x, x_edges))' 
+    z2 = diff(cdf.(dist_2_y, y_edges)) * diff(cdf.(dist_2_x, x_edges))'
     
     bck_cumsum = cumsum(exp.(cv_matrix[:,1]))
     
@@ -254,11 +254,11 @@ function generate_image_cam4(
     dist_2_x = Normal(μ_x, σ_x_2_res)
     dist_2_y = Normal(μ_y, σ_y_2_res)
     
-    x_edges = range(0, length = Base.size(image_matrix)[1]+1, step=δ_x)
-    y_edges = range(0, length = Base.size(image_matrix)[2]+1, step=δ_y)
+    x_edges = range(0, length = size(image)[2]+1, step=δ_x) 
+    y_edges = range(0, length = size(image)[1]+1, step=δ_y) 
     
-    z1 = diff(cdf.(dist_1_x, x_edges)) * diff(cdf.(dist_1_y, y_edges))'
-    z2 = diff(cdf.(dist_2_x, x_edges)) * diff(cdf.(dist_2_y, y_edges))'
+    z1 = diff(cdf.(dist_1_y, y_edges)) * diff(cdf.(dist_1_x, x_edges))' 
+    z2 = diff(cdf.(dist_2_y, y_edges)) * diff(cdf.(dist_2_x, x_edges))'
     
     for pix_ind in CartesianIndices(image_matrix)
         
@@ -266,7 +266,7 @@ function generate_image_cam4(
         pix_prediction = pix_prediction*light_coefficient + params.cam4_ped
         
         if inc_noise
-            pix_prediction = rand(truncated(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), 0.0, 4095)) 
+            pix_prediction = rand(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction))) 
         end
         
         if include_satur && pix_prediction > 4095
