@@ -53,10 +53,16 @@ function generate_image_cam13(
         pix_prediction = z1[pix_ind]*light_coefficient
         
         if inc_noise
-            pix_prediction = rand(truncated(Normal(pix_prediction, 0.5+light_fluctuations*sqrt(pix_prediction)), 0, 4096))
-            background_tmp = bck_cumsum .- rand()
-            background_tmp[background_tmp .< 0 ] .= Inf
-            pix_prediction += argmin(background_tmp) - 1
+            
+            # CV matrix
+            # to try: round / floor
+            pix_prediction = argmin(abs.(cumsum(exp.(cv_matrix[:, round(Int64, pix_prediction)+1])) .- rand())) - 1
+            
+            # Used to generate evenl 
+#             pix_prediction = rand(truncated(Normal(pix_prediction, 0.5+light_fluctuations*sqrt(pix_prediction)), 0, 4096))
+#             background_tmp = bck_cumsum .- rand()
+#             background_tmp[background_tmp .< 0 ] .= Inf
+#             pix_prediction += argmin(background_tmp) - 1
         end
         
         if include_satur && pix_prediction > 4095
@@ -128,7 +134,7 @@ function generate_image_cam4(
             pix_prediction = 4095
         end
         
-        image_matrix[pix_ind] = round(Int64, pix_prediction)
+        image_matrix[pix_ind] = round(Int64, pix_prediction) # round or floor
     end
 
     return image_matrix
@@ -206,8 +212,8 @@ function likelihood_cam4(
                 
                 pix_prediction = z1[pix_ind]*light_coefficient + params.cam4_ped
                 
-#                 @inbounds cum_log_lik += logpdf(truncated(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), 0.0, 4096.0), image[pix_ind]) # leads to -Inf
-                @inbounds cum_log_lik += logpdf(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), image[pix_ind]) # significantly speeds up auto diff
+                @inbounds cum_log_lik += logpdf(truncated(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), 0.0, 4096.0), image[pix_ind]) # leads to -Inf
+#                 @inbounds cum_log_lik += logpdf(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), image[pix_ind]) # significantly speeds up auto diff
                 
             end
         end
