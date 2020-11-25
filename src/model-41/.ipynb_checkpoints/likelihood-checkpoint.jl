@@ -181,8 +181,8 @@ function generate_image_cam13(
     dist_2_x = Normal(μ_x, σ_x_2_res)
     dist_2_y = Normal(μ_y, σ_y_2_res)
     
-    x_edges = range(0, length = size(image)[2]+1, step=δ_x)
-    y_edges = range(0, length = size(image)[1]+1, step=δ_y) 
+    x_edges = range(0, length = Base.size(image_matrix)[2]+1, step=δ_x)
+    y_edges = range(0, length = Base.size(image_matrix)[1]+1, step=δ_y) 
     
     z1 = diff(cdf.(dist_1_y, y_edges)) * diff(cdf.(dist_1_x, x_edges))' 
     z2 = diff(cdf.(dist_2_y, y_edges)) * diff(cdf.(dist_2_x, x_edges))'
@@ -254,8 +254,8 @@ function generate_image_cam4(
     dist_2_x = Normal(μ_x, σ_x_2_res)
     dist_2_y = Normal(μ_y, σ_y_2_res)
     
-    x_edges = range(0, length = size(image)[2]+1, step=δ_x) 
-    y_edges = range(0, length = size(image)[1]+1, step=δ_y) 
+    x_edges = range(0, length = Base.size(image_matrix)[2]+1, step=δ_x) 
+    y_edges = range(0, length = Base.size(image_matrix)[1]+1, step=δ_y) 
     
     z1 = diff(cdf.(dist_1_y, y_edges)) * diff(cdf.(dist_1_x, x_edges))' 
     z2 = diff(cdf.(dist_2_y, y_edges)) * diff(cdf.(dist_2_x, x_edges))'

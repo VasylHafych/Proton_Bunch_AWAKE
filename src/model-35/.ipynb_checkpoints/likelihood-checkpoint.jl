@@ -27,22 +27,30 @@ function generate_image_cam13(
     σ_x = sqrt(σ_x^2 + (params.resx[cam_ind]*δ_x).^2)
     σ_y = sqrt(σ_y^2 + (params.resy[cam_ind]*δ_y).^2)
     
+    dist_1_x = Normal(μ_x, σ_x)
+    dist_1_y = Normal(μ_y, σ_y)
+    
+    x_edges = range(0, length = Base.size(image_matrix)[2]+1, step=δ_x) 
+    y_edges = range(0, length = Base.size(image_matrix)[1]+1, step=δ_y) 
+    
+    z1 = diff(cdf.(dist_1_y, y_edges)) * diff(cdf.(dist_1_x, x_edges))'
+    
     bck_cumsum = cumsum(exp.(cv_matrix[:,1]))
     
     for pix_ind in CartesianIndices(image_matrix)
     
-        x_edge::Float64 = pix_ind.I[1] * δ_x
-        y_edge::Float64 = pix_ind.I[2] * δ_y
+#         x_edge::Float64 = pix_ind.I[1] * δ_x
+#         y_edge::Float64 = pix_ind.I[2] * δ_y
 
-#         pix_prediction::Float64 = cdf(Normal(μ_x,σ_x), x_edge) - cdf(Normal(μ_x,σ_x), x_edge - δ_x)
-#         pix_prediction *= cdf(Normal(μ_y,σ_y), y_edge) - cdf(Normal(μ_y,σ_y), y_edge - δ_y)
+# #         pix_prediction::Float64 = cdf(Normal(μ_x,σ_x), x_edge) - cdf(Normal(μ_x,σ_x), x_edge - δ_x)
+# #         pix_prediction *= cdf(Normal(μ_y,σ_y), y_edge) - cdf(Normal(μ_y,σ_y), y_edge - δ_y)
         
-        right_tmp, left_tmp = pdf(Normal(μ_x,σ_x), x_edge), pdf(Normal(μ_x,σ_x), x_edge - δ_x)
-        pix_prediction = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
-        right_tmp, left_tmp = pdf(Normal(μ_y,σ_y), y_edge), pdf(Normal(μ_y,σ_y), y_edge - δ_y)
-        pix_prediction *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
+#         right_tmp, left_tmp = pdf(Normal(μ_x,σ_x), x_edge), pdf(Normal(μ_x,σ_x), x_edge - δ_x)
+#         pix_prediction = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
+#         right_tmp, left_tmp = pdf(Normal(μ_y,σ_y), y_edge), pdf(Normal(μ_y,σ_y), y_edge - δ_y)
+#         pix_prediction *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
         
-        pix_prediction = pix_prediction*light_coefficient
+        pix_prediction = z1[pix_ind]*light_coefficient
         
         if inc_noise
             pix_prediction = rand(truncated(Normal(pix_prediction, 0.5+light_fluctuations*sqrt(pix_prediction)), 0, 4096))
@@ -88,20 +96,28 @@ function generate_image_cam4(
     σ_x = sqrt(σ_x^2 + (params.cam4_resx*δ_x).^2)
     σ_y = sqrt(σ_y^2 + (params.cam4_resy*δ_y).^2)
     
+    dist_1_x = Normal(μ_x, σ_x)
+    dist_1_y = Normal(μ_y, σ_y)
+    
+    x_edges = range(0, length = Base.size(image_matrix)[2]+1, step=δ_x) 
+    y_edges = range(0, length = Base.size(image_matrix)[1]+1, step=δ_y) 
+    
+    z1 = diff(cdf.(dist_1_y, y_edges)) * diff(cdf.(dist_1_x, x_edges))'
+    
     for pix_ind in CartesianIndices(image_matrix)
     
-        x_edge::Float64 = pix_ind.I[1] * δ_x
-        y_edge::Float64 = pix_ind.I[2] * δ_y
+#         x_edge::Float64 = pix_ind.I[1] * δ_x
+#         y_edge::Float64 = pix_ind.I[2] * δ_y
 
-#         pix_prediction::Float64 = cdf(Normal(μ_x,σ_x), x_edge) - cdf(Normal(μ_x,σ_x), x_edge - δ_x)
-#         pix_prediction *= cdf(Normal(μ_y,σ_y), y_edge) - cdf(Normal(μ_y,σ_y), y_edge - δ_y)
+# #         pix_prediction::Float64 = cdf(Normal(μ_x,σ_x), x_edge) - cdf(Normal(μ_x,σ_x), x_edge - δ_x)
+# #         pix_prediction *= cdf(Normal(μ_y,σ_y), y_edge) - cdf(Normal(μ_y,σ_y), y_edge - δ_y)
         
-        right_tmp, left_tmp = pdf(Normal(μ_x,σ_x), x_edge), pdf(Normal(μ_x,σ_x), x_edge - δ_x)
-        pix_prediction = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
-        right_tmp, left_tmp = pdf(Normal(μ_y,σ_y), y_edge), pdf(Normal(μ_y,σ_y), y_edge - δ_y)
-        pix_prediction *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
+#         right_tmp, left_tmp = pdf(Normal(μ_x,σ_x), x_edge), pdf(Normal(μ_x,σ_x), x_edge - δ_x)
+#         pix_prediction = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
+#         right_tmp, left_tmp = pdf(Normal(μ_y,σ_y), y_edge), pdf(Normal(μ_y,σ_y), y_edge - δ_y)
+#         pix_prediction *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
         
-        pix_prediction = pix_prediction*light_coefficient + params.cam4_ped
+        pix_prediction = z1[pix_ind]*light_coefficient + params.cam4_ped
         
         if inc_noise
             pix_prediction = rand(truncated(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), 0.0, 4095)) 
@@ -165,6 +181,14 @@ function likelihood_cam4(
     σ_x::VT = sqrt(σ_x_1^2 + (params.cam4_resx*δ_x)^2)
     σ_y::VT = sqrt(σ_y_1^2 + (params.cam4_resy*δ_y)^2)
     
+    dist_1_x = Normal(μ_x, σ_x)
+    dist_1_y = Normal(μ_y, σ_y)
+    
+    x_edges = range(0, length = Base.size(image)[2]+1, step=δ_x) 
+    y_edges = range(0, length = Base.size(image)[1]+1, step=δ_y) 
+    
+    z1 = diff(cdf.(dist_1_y, y_edges)) * diff(cdf.(dist_1_x, x_edges))'
+    
     Threads.@threads for t in eachindex(tot_loglik)
         
         cum_log_lik = zero(Float64) 
@@ -172,15 +196,15 @@ function likelihood_cam4(
         @inbounds for pix_ind in CartesianIndices(image)[t:n_threads:length(image)] 
             @inbounds if !isnan(image[pix_ind])
                 
-                @inbounds x_edge = pix_ind.I[1] * δ_x
-                @inbounds y_edge = pix_ind.I[2] * δ_y
+#                 @inbounds x_edge = pix_ind.I[1] * δ_x
+#                 @inbounds y_edge = pix_ind.I[2] * δ_y
 
-                right_tmp, left_tmp = pdf(Normal(μ_x,σ_x), x_edge), pdf(Normal(μ_x,σ_x), x_edge - δ_x)
-                pix_prediction = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
-                right_tmp, left_tmp = pdf(Normal(μ_y,σ_y), y_edge), pdf(Normal(μ_y,σ_y), y_edge - δ_y)
-                pix_prediction *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
+#                 right_tmp, left_tmp = pdf(Normal(μ_x,σ_x), x_edge), pdf(Normal(μ_x,σ_x), x_edge - δ_x)
+#                 pix_prediction = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
+#                 right_tmp, left_tmp = pdf(Normal(μ_y,σ_y), y_edge), pdf(Normal(μ_y,σ_y), y_edge - δ_y)
+#                 pix_prediction *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
                 
-                pix_prediction = pix_prediction*light_coefficient + params.cam4_ped
+                pix_prediction = z1[pix_ind]*light_coefficient + params.cam4_ped
                 
 #                 @inbounds cum_log_lik += logpdf(truncated(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), 0.0, 4096.0), image[pix_ind]) # leads to -Inf
                 @inbounds cum_log_lik += logpdf(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), image[pix_ind]) # significantly speeds up auto diff
@@ -219,7 +243,15 @@ function likelihood_cam13(
     @inbounds σ_y_1::VT = sqrt.(params.tr_size[2]^2 + 10^-4*params.ang_spr[2]^2*(params.waist[1] - params.s_cam[cam_ind])^2) 
     
     σ_x::VT = sqrt(σ_x_1^2 + (params.resx[cam_ind]*δ_x)^2)
-    σ_y::VT = sqrt(σ_y_1^2 + (params.resy[cam_ind]*δ_y)^2) # \sigma x is the same for both
+    σ_y::VT = sqrt(σ_y_1^2 + (params.resy[cam_ind]*δ_y)^2) 
+    
+    dist_1_x = Normal(μ_x, σ_x)
+    dist_1_y = Normal(μ_y, σ_y)
+    
+    x_edges = range(0, length = Base.size(image)[2]+1, step=δ_x) 
+    y_edges = range(0, length = Base.size(image)[1]+1, step=δ_y) 
+    
+    z1 = diff(cdf.(dist_1_y, y_edges)) * diff(cdf.(dist_1_x, x_edges))'
     
     max_pred_amp = size(cv_matrix)[2]-1
     
@@ -230,15 +262,15 @@ function likelihood_cam13(
         @inbounds for pix_ind in CartesianIndices(image)[t:n_threads:length(image)] 
             @inbounds if !isnan(image[pix_ind])
                 
-                @inbounds x_edge = pix_ind.I[1] * δ_x
-                @inbounds y_edge = pix_ind.I[2] * δ_y
+#                 @inbounds x_edge = pix_ind.I[1] * δ_x
+#                 @inbounds y_edge = pix_ind.I[2] * δ_y
 
-                right_tmp, left_tmp = pdf(Normal(μ_x,σ_x), x_edge), pdf(Normal(μ_x,σ_x), x_edge - δ_x)
-                pix_prediction = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
-                right_tmp, left_tmp = pdf(Normal(μ_y,σ_y), y_edge), pdf(Normal(μ_y,σ_y), y_edge - δ_y)
-                pix_prediction *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
+#                 right_tmp, left_tmp = pdf(Normal(μ_x,σ_x), x_edge), pdf(Normal(μ_x,σ_x), x_edge - δ_x)
+#                 pix_prediction = (left_tmp + 0.5*(right_tmp - left_tmp))*δ_x
+#                 right_tmp, left_tmp = pdf(Normal(μ_y,σ_y), y_edge), pdf(Normal(μ_y,σ_y), y_edge - δ_y)
+#                 pix_prediction *= (left_tmp + 0.5*(right_tmp - left_tmp))*δ_y
 
-                pix_prediction = pix_prediction*light_coefficient
+                pix_prediction = z1[pix_ind]*light_coefficient
 
                 if pix_prediction > max_pred_amp - 1
                     pix_prediction -= pix_prediction - (max_pred_amp - 1)
