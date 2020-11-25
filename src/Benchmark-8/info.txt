@@ -1,0 +1,3 @@
+Model comparison: 
+
+HC event #2 is used and two models are used to generate samples: (1) 35D and (2) 41D. Samples are compared.   

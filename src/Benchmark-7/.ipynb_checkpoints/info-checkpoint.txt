@@ -1,0 +1,2 @@
+The same analysis as Benchmark-5 but resolution funcations are allowed to fluctuate. 
+6 additional parameters are introduced. 
