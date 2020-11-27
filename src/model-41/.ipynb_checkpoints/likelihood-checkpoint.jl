@@ -195,10 +195,13 @@ function generate_image_cam13(
         pix_prediction = pix_prediction*light_coefficient
         
         if inc_noise
-            pix_prediction = rand(truncated(Normal(pix_prediction, 0.5+light_fluctuations*sqrt(pix_prediction)), 0, 4096))
-            background_tmp = bck_cumsum .- rand()
-            background_tmp[background_tmp .< 0 ] .= Inf
-            pix_prediction += argmin(background_tmp) - 1
+            
+            pix_prediction = argmin(abs.(cumsum(exp.(cv_matrix[:, round(Int64, pix_prediction)+1])) .- rand())) - 1
+            
+#             pix_prediction = rand(truncated(Normal(pix_prediction, 0.5+light_fluctuations*sqrt(pix_prediction)), 0, 4096))
+#             background_tmp = bck_cumsum .- rand()
+#             background_tmp[background_tmp .< 0 ] .= Inf
+#             pix_prediction += argmin(background_tmp) - 1
         end
         
         if include_satur && pix_prediction > 4095
