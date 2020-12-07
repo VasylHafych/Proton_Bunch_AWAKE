@@ -72,11 +72,15 @@ function def_settings()
 
     init = MCMCChainPoolInit(
         init_tries_per_chain = ClosedInterval(50,150),
-        nsteps_init = 500,
+        max_nsamples_init = 500,
+        max_nsteps_init = 500,
+        max_time_init = Inf
     )
 
     burnin = MCMCMultiCycleBurnin(
-        nsteps_per_cycle = 10000,
+        max_nsamples_per_cycle = 10000,
+        max_nsteps_per_cycle = 10000,
+        max_time_per_cycle = Inf,
         max_ncycles = 130
     )
     
@@ -133,16 +137,17 @@ function main(event_ind)
         
         sampler = MetropolisHastings(tuning=tuning,)
         
-        algorithm = MCMCSampling(
-            nsteps=nsamples, 
+        algorithm = MCMCSampling(sampler=sampler, 
             nchains=nchains, 
-            sampler=sampler, 
             init=init, 
             burnin=burnin, 
-            convergence=convergence,
-            strict = false,
+            convergence=convergence
         )
-        @time samples = bat_sample(posterior, algorithm).result
+        @time samples = bat_sample(
+            posterior, nchains*nsamples, algorithm,
+            max_neval = nchains*nsamples,
+            max_time = Inf,
+        ).result
         
         BAT.bat_write(PATH*"hc-$(event_ind[ind]).hdf5", unshaped.(samples))
     end
