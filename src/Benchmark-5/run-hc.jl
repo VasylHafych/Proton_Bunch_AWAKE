@@ -30,9 +30,9 @@ end
 
 function def_rem_ind()
     images = load("../../data/experiment/dataset_2/m2/images-satur.jld2")
-    ind_tmp = [1, 113, 188, 2, 26, 281, 3, 311, 322, 357, 4, 435, 440, 442, 5, 72, 95]
+    ind_tmp = [1, 10, 11, 113, 12, 13, 14, 15, 16, 17, 18, 188, 19, 2, 26, 281, 3, 311, 322, 357, 4, 435, 440, 442, 5, 6, 7, 72, 8, 9, 95]
     rem_ind = setdiff(eachindex(images["charge"]), ind_tmp)
-    return rem_ind
+    return shuffle(rem_ind)
 end
 
 function log_lik_ndiff(e, cv_mat; 
@@ -137,14 +137,14 @@ function main(event_ind)
         
         sampler = MetropolisHastings(tuning=tuning,)
         
-        algorithm = MCMCSampling(sampler=sampler, 
+        algorithm = MCMCSampling(nsteps = nchains*nsamples, sampler=sampler, 
             nchains=nchains, 
             init=init, 
             burnin=burnin, 
             convergence=convergence
         )
         @time samples = bat_sample(
-            posterior, nchains*nsamples, algorithm,
+            posterior, algorithm,
             max_neval = nchains*nsamples,
             max_time = Inf,
         ).result
@@ -155,9 +155,6 @@ function main(event_ind)
     
 end
 
-ind_samples = [1, 10, 11, 113, 12, 13, 14, 15, 16, 17, 18, 188, 19, 2, 26, 281, 3, 311, 322, 357, 4, 435, 440, 442, 5, 6, 7, 72, 8, 9, 95] 
-
-#def_rem_ind() 
-#[1, 113, 188, 2, 26, 281, 3, 311, 322, 357, 4, 435, 440, 442, 5, 72, 95]
+ind_samples = def_rem_ind() 
 
 main(ind_samples)
