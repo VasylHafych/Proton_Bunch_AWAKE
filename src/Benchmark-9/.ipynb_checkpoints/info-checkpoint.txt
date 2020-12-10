@@ -1,0 +1,7 @@
+1-SummaryFile - create a file which contains mean parameters of MCMC analysis for multiple events. 
+2-AngularDist-Toy - toy event to test angular distribution analysis.
+3-AngularDist-Exp - try angular distribution analysis on a few events. 
+4-Analysis-1 - plots using analysis of 150 events where \sigma's are fixed. 
+5-Analysis-2 - plots using analysis of 150 events where \sigmas are fixed 
+6-Analysis-3 - plots using analysis of 150 events where \sigma's are parameters
+run-hmc.jl - file that has been used to generate 150 event analysis. 
