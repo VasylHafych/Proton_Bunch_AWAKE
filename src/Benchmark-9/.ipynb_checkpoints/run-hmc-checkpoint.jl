@@ -20,7 +20,7 @@ n_events = length(sampling_ind)
 
 prior_ang = NamedTupleDist(
     θ = [10^-15 .. 10^-4 for i in 1:n_events],
-    α = [0 .. 2*pi  for i in 1:n_events],
+    α = [-pi .. pi  for i in 1:n_events], #0 .. 2*pi
     x_alignm = [-200 .. 200 for i in 1:3],
     y_alignm = [-200 .. 200 for i in 1:3],
     σ_x = [0.001 .. 50., 0.001 .. 100., 0.001 .. 100.],
@@ -59,7 +59,7 @@ posterior = PosteriorDensity(log_likelihood, prior_ang)
 posterior_is = bat_transform(PriorToGaussian(), posterior, PriorSubstitution()).result;
 
 iter = 100000
-iter_warmup = 3000
+iter_warmup = 3400
 chains = 4;
 
 metric = BAT.DiagEuclideanMetric()
@@ -75,4 +75,4 @@ samples = samples_is.result
 trafo_is = trafoof(posterior_is.likelihood)
 samples = inv(trafo_is).(samples)
 
-BAT.bat_write("../../data/sampling_results/Benchmark-9/samples-1-150-2.hdf5", unshaped.(samples))
+BAT.bat_write("../../data/sampling_results/Benchmark-9/samples-1-150-3.hdf5", unshaped.(samples))
