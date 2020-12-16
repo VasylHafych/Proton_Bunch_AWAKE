@@ -1,5 +1,0 @@
-Sampling with 2 Gaussian distributions in the angular spread. 
-
-Note: 
--- Used slightly overestimated uncertainty on the pixel size (cam #4)
--- Posterior distribution on the pixel sizes is significantly different from the prior -> Possibly wrong model. 

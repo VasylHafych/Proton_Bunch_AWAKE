@@ -1,7 +1,0 @@
-Sampling with 2 Gaussian distributions in the angular spread, transversal size, and waist. 
-
-Note: 
--- Posterior distribution on the pixel size is very different from the prior distribution -> the model is possibly wrong. 
-
-To do: 
--- Check whether fixed/truncated prior on the pixel size leads to the better agreement. 

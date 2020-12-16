@@ -1,5 +1,0 @@
-Analysis of a long run with ~35 event. Only one Gaussian bunch is used (35D Model). 
-
-Note: 
-Model is not used because poor agreement with data on the first/last cameras. 
-Two additional models are created (38D and 41D)
