@@ -4,9 +4,9 @@ Proton bunch is approximated using CDF function.
 
 Description of files: 
 
-1-Analysis_Samp-41.ipynb - analysis of 40 events using MCMC samples. Long file, no summary data. 
+1-Samples-Demo-41.ipynb - Check contours of 1 event
 2-SummaryFile.ipynb - summary file is created with shifted alignments of cameras. physics parameters and std are stored. 
-3-Analysis_Cov.ipynb - Covariance matrix is computed for samples and events. 
-4-AngularDist.ipynb - angular distribution is computed 
+3-Analysis_Samp-41.ipynb - analysis of 40 events using MCMC samples. Long file, no summary data.  (summary file is used)
+4-Analysis_Cov.ipynb - Covariance matrix is computed for samples and events. 
 5-Plotly-trace.ipynb - Plotly is used to mke 3D visualizations 
 6-Resolution - samples with constant and varying resolution function are compared. 
