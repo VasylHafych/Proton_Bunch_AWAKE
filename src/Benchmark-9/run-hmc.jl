@@ -13,9 +13,9 @@ using BAT
 using ForwardDiff
 using BenchmarkTools
 
-@load "../../data/sampling_results/Benchmark-5/mcmc-summary-data.jld" data_save
+@load "../../data/sampling_results/Benchmark-5/mcmc-summary-data-600.jld" data_save
 summary_data = data_save[1]
-sampling_ind = 1:400
+sampling_ind = 1:600
 n_events = length(sampling_ind)
 
 prior_ang = NamedTupleDist(

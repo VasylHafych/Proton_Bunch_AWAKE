@@ -30,7 +30,7 @@ end
 
 function def_rem_ind()
     images = load("../../data/experiment/dataset_2/m1/images-satur.jld2")
-    ind_tmp = []
+    ind_tmp = [10, 115, 116, 124, 125, 131, 146, 152, 173, 176, 201, 207, 218, 221, 228, 263, 266, 281, 286, 300, 323, 334, 344, 354, 36, 364, 44, 57, 66, 74, 87, 89, 99]
     rem_ind = setdiff(eachindex(images["charge"]), ind_tmp)
     return shuffle(rem_ind)
 end
@@ -139,13 +139,18 @@ function main(event_ind)
             burnin=burnin, 
             convergence=convergence
         )
-        @time samples = bat_sample(
-            posterior, nchains*nsamples, algorithm,
-            max_neval = nchains*nsamples,
-            max_time = Inf,
-        ).result
         
-        BAT.bat_write(PATH*"lc-$(event_ind[ind]).hdf5", unshaped.(samples))
+        try 
+            @time samples = bat_sample(
+                posterior, nchains*nsamples, algorithm,
+                max_neval = nchains*nsamples,
+                max_time = Inf,
+            ).result
+
+            BAT.bat_write(PATH*"lc-$(event_ind[ind]).hdf5", unshaped.(samples))
+        catch
+            @show "Error"
+        end
     end
     
     

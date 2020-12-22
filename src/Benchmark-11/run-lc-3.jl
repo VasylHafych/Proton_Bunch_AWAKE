@@ -13,7 +13,7 @@ using Measurements
 using BenchmarkTools
 using BAT 
 
-include("../model-35/likelihood.jl")
+include("../model-41/likelihood.jl")
 
 function def_conv_mat()
     conv_mat = load("../../data/experiment/dataset_2/m1/conv-matrix-upd-2.jld2")
@@ -30,8 +30,8 @@ end
 
 function def_rem_ind()
     images = load("../../data/experiment/dataset_2/m1/images-satur.jld2")
-    ind_tmp = [10, 115, 116, 124, 125, 131, 146, 152, 173, 176, 201, 207, 218, 221, 228, 263, 266, 281, 286, 300, 323, 334, 344, 354, 36, 364, 44, 57, 66, 74, 87, 89, 99]
-    rem_ind = setdiff(eachindex(images["charge"]), ind_tmp)
+    ind_tmp = [102, 104, 107, 112, 114, 115, 12, 121, 136, 137, 139, 14, 140, 141, 142, 145, 146, 147, 150, 157, 166, 168, 175, 176, 177, 183, 189, 209, 216, 219, 220, 224, 230, 233, 261, 264, 270, 275, 281, 283, 285, 291, 301, 303, 316, 333, 337, 339, 348, 353, 374, 376, 378, 41, 42, 50, 52, 56, 6, 65, 70, 73, 82, 84, 94, 95]
+    rem_ind = setdiff(eachindex(images["charge"]), ind_tmp)[3:3:end]
     return shuffle(rem_ind)
 end
 
@@ -78,8 +78,8 @@ function def_settings()
     )
 
     burnin = MCMCMultiCycleBurnin(
-        max_nsamples_per_cycle = 7000,
-        max_nsteps_per_cycle = 7000,
+        max_nsamples_per_cycle = 10000,
+        max_nsteps_per_cycle = 10000,
         max_time_per_cycle = Inf,
         max_ncycles = 130
     )
@@ -93,25 +93,29 @@ function def_prior()
     β3 = 0.0058 
 
     return  NamedTupleDist(
-        tr_size = [truncated(Normal(0.2, 0.04), 0.03, 0.20), truncated(Normal(0.2, 0.04), 0.03, 0.20)],
-        ang_spr = [truncated(Normal(4.0, 2.0), 2.0, 7.0), truncated(Normal(4.0, 2.0), 2.0, 7.0)],
-        waist = [Normal(2.9, 0.03)],
+        tr_size = [truncated(Normal(0.2, 0.04), 0.03, 0.16), truncated(Normal(0.2, 0.04), 0.03, 0.16)],
+        tr_size_2 = [truncated(Normal(0.2, 0.04), 0.03, 0.16), truncated(Normal(0.2, 0.04), 0.03, 0.16)],
+        ang_spr = [truncated(Normal(4.0, 2.0), 4.0, 7.0), truncated(Normal(4.0, 2.0), 4.0, 7.0)],
+        ang_spr_2 = [truncated(Normal(4.0, 2.0), 1.0, 4.0), truncated(Normal(4.0, 2.0), 1.0, 4.0)],
+        mixt_pow =  0.30 .. 1.0 ,
+        waist = [truncated(Normal(2.9, 0.03), 2.65, 3.5)],
+        waist_2 = [truncated(Normal(2.9, 0.03), 2.65, 3.5)], # 11
         algmx = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
         algmy = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
         cam4_ped = 4.0 .. 40.0,
-        cam4_light_fluct = 1.0 .. 3.0,
+        cam4_light_fluct =  1.0 .. 3.0,
         cam4_light_amp = 1.6 .. 9.9, 
-        resx = [1.0, 1.0, 1.0], 
-        resy = [1.0, 1.0, 1.0], 
+        resx = [1, 1, 1], # 23, 24, 25, 
+        resy = [1, 1, 1], # 26,27, 28, 
         cam4_resx = truncated(Normal(3, 1.5), 0, Inf),
-        cam4_resy = truncated(Normal(3, 1.5), 0, Inf),
+        cam4_resy = truncated(Normal(3, 1.5), 0, Inf), 
         psx = [27.1, 21.6, 114.0], # 31, 32, 33
         psy = [30.5, 23.4, 125.0], # 34, 35, 36
         cam4_psx = 121.8, # 37
         cam4_psy = 120.0, # 38
         light_amp  = [1.0 .. 13.0 , 1.0 .. 17.0, 1.0 .. 5.0], # 1.0 .. 5.0
         s_cam = [0.0, 1.478, 15.026, 23.1150],
-    ); 
+    )
 end
 
 function main(event_ind)
@@ -121,7 +125,7 @@ function main(event_ind)
     conv_mat = def_conv_mat()
     tuning, convergence, init, burnin  = def_settings()
     nsamples, nchains = 10^6, 4
-    PATH = "../../data/sampling_results/Benchmark-10/"
+    PATH = "../../data/sampling_results/Benchmark-11/"
     
     for (ind, vals) in enumerate(data)
         
@@ -139,7 +143,6 @@ function main(event_ind)
             burnin=burnin, 
             convergence=convergence
         )
-        
         try 
             @time samples = bat_sample(
                 posterior, nchains*nsamples, algorithm,

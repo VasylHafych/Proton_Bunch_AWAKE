@@ -1,0 +1,1 @@
+Recompute LC events with a relaxed "mixt_pow" parameter. 

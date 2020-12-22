@@ -30,7 +30,7 @@ end
 
 function def_rem_ind()
     images = load("../../data/experiment/dataset_2/m1/images-satur.jld2")
-    ind_tmp = [1, 10, 11, 113, 115, 12, 13, 134, 137, 14, 146, 150, 151, 154, 155, 157, 16, 161, 169, 17, 174, 177, 178, 18, 189, 19, 191, 198, 2, 20, 204, 209, 21, 210, 214, 218, 22, 225, 226, 23, 24, 25, 253, 262, 274, 280, 286, 287, 294, 295, 3, 310, 322, 326, 33, 332, 343, 344, 346, 355, 356, 358, 362, 369, 4, 44, 48, 5, 50, 55, 6, 62, 65, 67, 7, 8, 80, 9, 99]
+    ind_tmp = []
     rem_ind = setdiff(eachindex(images["charge"]), ind_tmp)
     return shuffle(rem_ind)
 end
@@ -97,7 +97,7 @@ function def_prior()
         tr_size_2 = [truncated(Normal(0.2, 0.04), 0.03, 0.16), truncated(Normal(0.2, 0.04), 0.03, 0.16)],
         ang_spr = [truncated(Normal(4.0, 2.0), 4.0, 7.0), truncated(Normal(4.0, 2.0), 4.0, 7.0)],
         ang_spr_2 = [truncated(Normal(4.0, 2.0), 1.0, 4.0), truncated(Normal(4.0, 2.0), 1.0, 4.0)],
-        mixt_pow =  0.50 .. 1.0 ,
+        mixt_pow =  0.30 .. 1.0 ,
         waist = [truncated(Normal(2.9, 0.03), 2.65, 3.5)],
         waist_2 = [truncated(Normal(2.9, 0.03), 2.65, 3.5)], # 11
         algmx = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
@@ -143,13 +143,17 @@ function main(event_ind)
             burnin=burnin, 
             convergence=convergence
         )
-        @time samples = bat_sample(
-            posterior, nchains*nsamples, algorithm,
-            max_neval = nchains*nsamples,
-            max_time = Inf,
-        ).result
-        
-        BAT.bat_write(PATH*"lc-$(event_ind[ind]).hdf5", unshaped.(samples))
+        try 
+            @time samples = bat_sample(
+                posterior, nchains*nsamples, algorithm,
+                max_neval = nchains*nsamples,
+                max_time = Inf,
+            ).result
+
+            BAT.bat_write(PATH*"lc-$(event_ind[ind]).hdf5", unshaped.(samples))
+        catch
+            @show "Error"
+        end
     end
     
     
