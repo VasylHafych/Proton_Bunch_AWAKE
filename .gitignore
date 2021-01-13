@@ -1,5 +1,4 @@
-Manifest.toml
-
+.ipynb_checkpoints
 data/experiment/*
 data/resolution/*
 data/sampling_results/*
