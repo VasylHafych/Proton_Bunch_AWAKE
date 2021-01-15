@@ -67,8 +67,8 @@ version = "1.0.0"
 
 [[BAT]]
 deps = ["AdaptiveRejectionSampling", "AdvancedHMC", "ArgCheck", "ArraysOfArrays", "CPUTime", "Clustering", "Colors", "DataStructures", "Dates", "DiffResults", "Distributed", "Distributions", "DistributionsAD", "DoubleFloats", "ElasticArrays", "EmpiricalDistributions", "FFTW", "FillArrays", "ForwardDiff", "HypothesisTests", "IntervalSets", "KernelDensity", "LaTeXStrings", "LinearAlgebra", "Markdown", "Measurements", "NLSolversBase", "NamedArrays", "Optim", "PDMats", "ParallelProcessingTools", "Parameters", "PositiveFactorizations", "Printf", "ProgressMeter", "QuadGK", "Random", "Random123", "RecipesBase", "Requires", "Sobol", "SpecialFunctions", "Statistics", "StatsBase", "StructArrays", "Tables", "TypedTables", "ValueShapes"]
-git-tree-sha1 = "512bbd5a4f547ae910165cc48785862cb070c019"
-repo-rev = "1bb577c8d976066c1f52070984d86020728f599c"
+git-tree-sha1 = "5e96aa72bd88cf9ead8011893cd2ff2fc8d5f133"
+repo-rev = "aac99c2e4e7732102c602b96a034132687e186be"
 repo-url = "https://github.com/bat/BAT.jl.git"
 uuid = "c0cd4b16-88b7-57fa-983b-ab80aecada7e"
 version = "2.0.0-DEV"
