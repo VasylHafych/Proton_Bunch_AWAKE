@@ -4,5 +4,6 @@ data/resolution/*
 data/sampling_results/*
 .DS_Store
 notebooks/.DS_Store
-notebooks/.ipynb_checkpoints
 notebooks/tmp*
+
+*/.ipynb_checkpoints/*.ipynb
