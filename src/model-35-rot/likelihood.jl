@@ -30,7 +30,7 @@ function generate_image_cam13(
     x_edges = range(0, length = Base.size(image_matrix)[2]+1, step=δ_x) 
     y_edges = range(0, length = Base.size(image_matrix)[1]+1, step=δ_y) 
     
-    rot_mat = [cos(params.α[cam_ind]) sin(params.α[cam_ind]) ; -sin(params.α[cam_ind]) cos(params.α[cam_ind])]
+    rot_mat = [cos(params.α) sin(params.α) ; -sin(params.α) cos(params.α)]
     mvdist = MvNormal([μ_x, μ_y], [σ_x^2 0; 0 σ_y^2])
     int_func(x) = pdf(mvdist, rot_mat*x)
     mvmat = [int_func([x,y]) for y in y_edges, x in x_edges]  
@@ -100,7 +100,7 @@ function generate_image_cam4(
     x_edges = range(0, length = Base.size(image_matrix)[2]+1, step=δ_x) 
     y_edges = range(0, length = Base.size(image_matrix)[1]+1, step=δ_y) 
     
-    rot_mat = [cos(params.α[cam_ind]) sin(params.α[cam_ind]) ; -sin(params.α[cam_ind]) cos(params.α[cam_ind])]
+    rot_mat = [cos(params.α) sin(params.α) ; -sin(params.α) cos(params.α)]
     mvdist = MvNormal([μ_x, μ_y], [σ_x^2 0; 0 σ_y^2])
     int_func(x) = pdf(mvdist, rot_mat*x)
     mvmat = [int_func([x,y]) for y in y_edges, x in x_edges]  
@@ -185,7 +185,7 @@ function likelihood_cam4(
     x_edges = range(0, length = Base.size(image)[2]+1, step=δ_x) 
     y_edges = range(0, length = Base.size(image)[1]+1, step=δ_y)   
     
-    rot_mat = [cos(params.α[cam_ind]) sin(params.α[cam_ind]) ; -sin(params.α[cam_ind]) cos(params.α[cam_ind])]
+    rot_mat = [cos(params.α) sin(params.α) ; -sin(params.α) cos(params.α)]
     mvdist = MvNormal([μ_x, μ_y], [σ_x^2 0; 0 σ_y^2])
     int_func(x) = pdf(mvdist, rot_mat*x)
     mvmat = [int_func([x,y]) for y in y_edges, x in x_edges]  
@@ -252,7 +252,7 @@ function likelihood_cam13(
     x_edges = range(0, length = Base.size(image)[2]+1, step=δ_x) 
     y_edges = range(0, length = Base.size(image)[1]+1, step=δ_y) 
     
-    rot_mat = [cos(params.α[cam_ind]) sin(params.α[cam_ind]) ; -sin(params.α[cam_ind]) cos(params.α[cam_ind])]
+    rot_mat = [cos(params.α) sin(params.α) ; -sin(params.α) cos(params.α)]
     mvdist = MvNormal([μ_x, μ_y], [σ_x^2 0; 0 σ_y^2])
     int_func(x) = pdf(mvdist, rot_mat*x)
     mvmat = [int_func([x,y]) for y in y_edges, x in x_edges]  
