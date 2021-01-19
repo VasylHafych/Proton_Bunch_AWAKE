@@ -114,8 +114,8 @@ mcmcalgo = MetropolisHastings(
 rng = Philox4x()
 
 init = MCMCChainPoolInit(
-    init_tries_per_chain = 50 .. 150,
-    nsteps_init = 1000
+    init_tries_per_chain = 30 .. 110,
+    nsteps_init = 800
 )
 
 burnin = MCMCMultiCycleBurnin(

@@ -1,0 +1,7 @@
+Event HC2 is used for both models.
+
+35D-35D-rot: Priors are the same, evidence can be computed to compate models.  
+
+41D-41D-rot: Priors are the same, evidence can be computed to compare models. 
+
+41D and 35D models cannot be compared. 
