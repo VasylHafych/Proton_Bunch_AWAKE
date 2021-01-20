@@ -142,5 +142,5 @@ convergence = BrooksGelmanConvergence();
 
 samples = samples_tot.result;
 
-BAT.bat_write("../../data/sampling_results/Benchmark-11/samples-rot-35.hdf5", unshaped.(samples))
+BAT.bat_write("../../data/sampling_results/Benchmark-11/samples-rot-35-fixed.hdf5", unshaped.(samples))
 

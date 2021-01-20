@@ -51,8 +51,8 @@ function generate_image_cam13(
         @inbounds x_edge = pix_ind.I[2] 
         @inbounds y_edge = pix_ind.I[1] 
 
-        pix_prediction_1 = nanmean([z1[x_edge:x_edge+1, y_edge:y_edge+1]...])*δ_x*δ_y
-        pix_prediction_2 = nanmean([z2[x_edge:x_edge+1, y_edge:y_edge+1]...])*δ_x*δ_y
+        pix_prediction_1 = nanmean([z1[y_edge:y_edge+1, x_edge:x_edge+1]...])*δ_x*δ_y
+        pix_prediction_2 = nanmean([z2[y_edge:y_edge+1, x_edge:x_edge+1]...])*δ_x*δ_y
 
         pix_prediction = params.mixt_pow*pix_prediction_1 + (1-params.mixt_pow)*pix_prediction_2
 
@@ -136,8 +136,8 @@ function generate_image_cam4(
         @inbounds x_edge = pix_ind.I[2] 
         @inbounds y_edge = pix_ind.I[1] 
 
-        pix_prediction_1 = nanmean([z1[x_edge:x_edge+1, y_edge:y_edge+1]...])*δ_x*δ_y
-        pix_prediction_2 = nanmean([z2[x_edge:x_edge+1, y_edge:y_edge+1]...])*δ_x*δ_y
+        pix_prediction_1 = nanmean([z1[y_edge:y_edge+1, x_edge:x_edge+1]...])*δ_x*δ_y
+        pix_prediction_2 = nanmean([z2[y_edge:y_edge+1, x_edge:x_edge+1]...])*δ_x*δ_y
         pix_prediction = params.mixt_pow*pix_prediction_1 + (1-params.mixt_pow)*pix_prediction_2
 
         if pix_prediction < 0 || isnan(pix_prediction)
@@ -231,9 +231,8 @@ function likelihood_cam4(
                 @inbounds x_edge = pix_ind.I[2] 
                 @inbounds y_edge = pix_ind.I[1] 
                 
-                pix_prediction_1 = nanmean([z1[x_edge:x_edge+1, y_edge:y_edge+1]...])*δ_x*δ_y
-                                
-                pix_prediction_2 = nanmean([z2[x_edge:x_edge+1, y_edge:y_edge+1]...])*δ_x*δ_y
+                pix_prediction_1 = nanmean([z1[y_edge:y_edge+1, x_edge:x_edge+1]...])*δ_x*δ_y
+                pix_prediction_2 = nanmean([z2[y_edge:y_edge+1, x_edge:x_edge+1]...])*δ_x*δ_y
                 
                 pix_prediction = params.mixt_pow*pix_prediction_1 + (1-params.mixt_pow)*pix_prediction_2
                 
@@ -313,8 +312,8 @@ function likelihood_cam13(
                 @inbounds x_edge = pix_ind.I[2] 
                 @inbounds y_edge = pix_ind.I[1] 
                 
-                pix_prediction_1 = nanmean([z1[x_edge:x_edge+1, y_edge:y_edge+1]...])*δ_x*δ_y
-                pix_prediction_2 = nanmean([z2[x_edge:x_edge+1, y_edge:y_edge+1]...])*δ_x*δ_y
+                pix_prediction_1 = nanmean([z1[y_edge:y_edge+1, x_edge:x_edge+1]...])*δ_x*δ_y
+                pix_prediction_2 = nanmean([z2[y_edge:y_edge+1, x_edge:x_edge+1]...])*δ_x*δ_y
                 
                 pix_prediction = params.mixt_pow*pix_prediction_1 + (1-params.mixt_pow)*pix_prediction_2
                 pix_prediction = pix_prediction*light_coefficient

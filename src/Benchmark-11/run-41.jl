@@ -18,6 +18,8 @@ using DSP
 using Random123
 using BAT 
 
+ENV["JULIA_DEBUG"] = "BAT"
+
 conv_mat = load("../../data/experiment/dataset_2/m2/conv-matrix-upd-2.jld2") 
 
 conv_matrices = (
@@ -119,14 +121,14 @@ init = MCMCChainPoolInit(
 )
 
 burnin = MCMCMultiCycleBurnin(
-    max_ncycles = 130,
+    max_ncycles = 120,
     nsteps_per_cycle = 10000
 )
 
-nsamples = 10^6
+nsamples = 5*10^5
 nchains = 4
 
-convergence = BrooksGelmanConvergence();
+convergence = BrooksGelmanConvergence(threshold=1.2);
 
 @time samples_tot = bat_sample(
     rng, posterior,
@@ -146,5 +148,5 @@ convergence = BrooksGelmanConvergence();
 
 samples = samples_tot.result;
 
-BAT.bat_write("../../data/sampling_results/Benchmark-11/samples-rot-41.hdf5", unshaped.(samples))
+BAT.bat_write("../../data/sampling_results/Benchmark-11/samples-rot-41-fixed.hdf5", unshaped.(samples))
 

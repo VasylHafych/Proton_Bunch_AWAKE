@@ -44,7 +44,7 @@ function generate_image_cam13(
 
 #                 pix_prediction = hcubature(int_func, [x_edges[x_edge], y_edges[y_edge]], [x_edges[x_edge+1], y_edges[y_edge+1]], rtol=0.1, maxevals=5)[1]
 
-        pix_prediction = nanmean([mvmat[x_edge:x_edge+1, y_edge:y_edge+1]...])*δ_x*δ_y
+        pix_prediction = nanmean([mvmat[y_edge:y_edge+1,x_edge:x_edge+1]...])*δ_x*δ_y # flip x->y 
         pix_prediction = pix_prediction*light_coefficient
         
         if inc_noise
@@ -110,7 +110,7 @@ function generate_image_cam4(
         @inbounds x_edge = pix_ind.I[2] 
         @inbounds y_edge = pix_ind.I[1] 
 
-        pix_prediction = nanmean([mvmat[x_edge:x_edge+1, y_edge:y_edge+1]...])*δ_x*δ_y
+        pix_prediction = nanmean([mvmat[y_edge:y_edge+1,x_edge:x_edge+1]...])*δ_x*δ_y # flip x->y 
 
 #       pix_prediction = hcubature(int_func, [x_edges[x_edge], y_edges[y_edge]], [x_edges[x_edge+1], y_edges[y_edge+1]], rtol=0.1, maxevals=5)[1]
 
@@ -200,7 +200,7 @@ function likelihood_cam4(
                 @inbounds x_edge = pix_ind.I[2] 
                 @inbounds y_edge = pix_ind.I[1] 
                 
-                pix_prediction = nanmean([mvmat[x_edge:x_edge+1, y_edge:y_edge+1]...])*δ_x*δ_y
+                pix_prediction = nanmean([mvmat[y_edge:y_edge+1,x_edge:x_edge+1]...])*δ_x*δ_y # flip x->y 
 
 #                 pix_prediction = hcubature(int_func, [x_edges[x_edge], y_edges[y_edge]], [x_edges[x_edge+1], y_edges[y_edge+1]], rtol=0.1, maxevals=5)[1]
                 
@@ -271,7 +271,7 @@ function likelihood_cam13(
 
 #                 pix_prediction = hcubature(int_func, [x_edges[x_edge], y_edges[y_edge]], [x_edges[x_edge+1], y_edges[y_edge+1]], rtol=0.1, maxevals=5)[1]
 
-                pix_prediction = nanmean([mvmat[x_edge:x_edge+1, y_edge:y_edge+1]...])*δ_x*δ_y
+                pix_prediction = nanmean([mvmat[y_edge:y_edge+1,x_edge:x_edge+1]...])*δ_x*δ_y # flip x->y 
                 pix_prediction = pix_prediction*light_coefficient
 
                 if pix_prediction > max_pred_amp - 1
