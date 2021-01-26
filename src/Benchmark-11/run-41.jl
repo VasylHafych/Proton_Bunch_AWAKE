@@ -54,8 +54,8 @@ prior = NamedTupleDist(
         ang_spr = [truncated(Normal(4.0, 2.0), 4.0, 7.0), truncated(Normal(4.0, 2.0), 4.0, 7.0)],
         ang_spr_2 = [truncated(Normal(4.0, 2.0), 1.0, 4.0), truncated(Normal(4.0, 2.0), 1.0, 4.0)],
         mixt_pow =  0.5 .. 1.0 ,
-        waist = [truncated(Normal(2.9, 0.03), 2.65, 3.5)],
-        waist_2 = [truncated(Normal(2.9, 0.03), 2.65, 3.5)], # 11
+        waist = [truncated(Normal(2.9, 0.03), 3.0, 3.5)],
+        waist_2 = [truncated(Normal(2.9, 0.03), 2.65, 3.0)], # 11
         α = -pi/4 .. pi/4,
         algmx = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
         algmy = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
@@ -121,11 +121,11 @@ init = MCMCChainPoolInit(
 )
 
 burnin = MCMCMultiCycleBurnin(
-    max_ncycles = 120,
+    max_ncycles = 140,
     nsteps_per_cycle = 10000
 )
 
-nsamples = 5*10^5
+nsamples = 1*10^6
 nchains = 4
 
 convergence = BrooksGelmanConvergence(threshold=1.2);
@@ -148,5 +148,5 @@ convergence = BrooksGelmanConvergence(threshold=1.2);
 
 samples = samples_tot.result;
 
-BAT.bat_write("../../data/sampling_results/Benchmark-11/samples-rot-41-fixed.hdf5", unshaped.(samples))
+BAT.bat_write("../../data/sampling_results/Benchmark-11/samples-rot-41-fixed-3.hdf5", unshaped.(samples))
 

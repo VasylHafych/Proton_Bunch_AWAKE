@@ -119,7 +119,7 @@ burnin = MCMCMultiCycleBurnin(
     nsteps_per_cycle = 10000
 )
 
-nsamples = 1*10^6
+nsamples = 5*10^5
 nchains = 4
 
 convergence = BrooksGelmanConvergence();
