@@ -5,3 +5,4 @@ Benchmark-8: Used to compare 41D and 35D using HC2 event.
 Benchmark-9: Used to learn alignment of the bunch 
 Benchmark-10: Long run with 1-Gaussian model. 
 Benchmark-11: Rotation of the bunch for two models (event HC2). 
+Benchmark-12: Impact of the pixel size uncertanity on the 2-Gaussian model (event HC2)
