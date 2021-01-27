@@ -103,7 +103,7 @@ function likelihood_cam13(
     x_edges = range(0, length = size(image)[2]+1, step=δ_x) 
     y_edges = range(0, length = size(image)[1]+1, step=δ_y) 
     
-    z1 = diff(cdf.(dist_1_y, y_edges)) * diff(cdf.(dist_1_x, x_edges))' 
+    z1 = diff(cdf.(dist_1_y, y_edges)) * diff(cdf.(dist_1_x, x_edges))'     
     z2 = diff(cdf.(dist_2_y, y_edges)) * diff(cdf.(dist_2_x, x_edges))'
     
     max_pred_amp = size(cv_matrix)[2]-1
