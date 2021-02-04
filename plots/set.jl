@@ -53,6 +53,3 @@ function set_size(width; ratio=:golden, fraction=1)
 
     return fig_dim
 end
-
-latex_width = 421.10046 # \the\textwidth latex command
-best_size = set_size(latex_width, fraction=1)

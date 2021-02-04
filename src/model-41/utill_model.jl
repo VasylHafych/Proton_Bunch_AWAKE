@@ -45,22 +45,23 @@ function plot_envelop_trajectory(
             ax[2].axvline(params.s_cam[3], linestyle="-", color="darkslategray", alpha=0.5)
             ax[2].axvline(params.s_cam[4], linestyle="-", color="darkslategray", alpha=0.5)
 
-            ax[1].plot(x_range, σ_x_vals, color="k", ls="--", label="Halo")
-            ax[2].plot(x_range, σ_y_vals, color="k", ls="--",)
+            ax[1].plot(x_range, σ_x_vals, color=colors[ind], ls="--", label="Halo"*labels_array[ind])
+            ax[2].plot(x_range, σ_y_vals, color=colors[ind], ls="--",)
             
-            ax[1].plot(x_range, σ_x_vals_2, color="k", ls=":", label="Core")
-            ax[2].plot(x_range, σ_y_vals_2, color="k", ls=":",)
+            ax[1].plot(x_range, σ_x_vals_2, color=colors[ind], ls=":", label="Core"*labels_array[ind])
+            ax[2].plot(x_range, σ_y_vals_2, color=colors[ind], ls=":",)
             
             ax[1].set_xlim(-1, maximum(x_range))
 
             ax[1].set_ylim(0, maximum(σ_x_vals))
             ax[2].set_ylim(0, maximum(σ_y_vals))
         else 
-            ax[1].plot(x_range, σ_x_vals, color="k", ls="--", )
-            ax[2].plot(x_range, σ_y_vals, color="k", ls=":",)
             
-            ax[1].plot(x_range, σ_x_vals_2, color="k", ls="--", )
-            ax[2].plot(x_range, σ_y_vals_2, color="k", ls=":",)
+            ax[1].plot(x_range, σ_x_vals, color=colors[ind], ls="--", label="Halo"*labels_array[ind])
+            ax[2].plot(x_range, σ_y_vals, color=colors[ind], ls="--",)
+            
+            ax[1].plot(x_range, σ_x_vals_2, color=colors[ind], ls=":", label="Core"*labels_array[ind])
+            ax[2].plot(x_range, σ_y_vals_2, color=colors[ind], ls=":",)
         end
     end
 
