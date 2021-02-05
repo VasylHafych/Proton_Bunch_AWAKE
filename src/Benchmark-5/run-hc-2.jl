@@ -12,6 +12,7 @@ using ValueShapes
 using Measurements
 using BenchmarkTools
 using BAT 
+using Random123
 
 include("../model-41/likelihood.jl")
 
@@ -30,8 +31,7 @@ end
 
 function def_rem_ind()
     images = load("../../data/experiment/dataset_2/m2/images-satur.jld2")
-    ind_tmp = [1, 10, 100, 11, 113, 117, 12, 13, 130, 14, 141, 15, 156, 157, 16, 17, 174, 18, 188, 19, 190, 2, 202, 213, 226, 23, 238, 253, 257, 258, 26, 281, 294, 295, 3, 311, 322, 334, 338, 346, 350, 356, 357, 358, 371, 382, 389, 39, 391, 4, 409, 42, 421, 431, 433, 435, 440, 442, 445, 454, 47, 49, 5, 6, 60, 66, 7, 72, 8, 9, 95]
-    rem_ind = setdiff(eachindex(images["charge"]), ind_tmp)
+    rem_ind = eachindex(images["charge"])[2:2:end]
     return shuffle(rem_ind)
 end
 
@@ -66,25 +66,28 @@ function def_settings()
     )
 
     convergence = BrooksGelmanConvergence(
-        threshold = 1.1,
+        threshold = 1.15,
         corrected = false
     )
 
     init = MCMCChainPoolInit(
-        init_tries_per_chain = ClosedInterval(50,150),
-        max_nsamples_init = 500,
-        max_nsteps_init = 500,
-        max_time_init = Inf
+        init_tries_per_chain = 50 .. 150,
+        nsteps_init = 1500
     )
 
     burnin = MCMCMultiCycleBurnin(
-        max_nsamples_per_cycle = 10000,
-        max_nsteps_per_cycle = 10000,
-        max_time_per_cycle = Inf,
-        max_ncycles = 130
+        max_ncycles = 160,
+        nsteps_per_cycle = 40000
     )
     
-    return tuning, convergence, init, burnin 
+    mcmcalgo = MetropolisHastings(
+        weighting = RepetitionWeighting(),
+        tuning = tuning
+    )
+    
+    rng = Philox4x()
+    
+    return mcmcalgo, convergence, init, burnin, rng
 end
 
 function def_prior()
@@ -93,13 +96,13 @@ function def_prior()
     β3 = 0.0058 
 
     return NamedTupleDist(
-        tr_size = [truncated(Normal(0.2, 0.04), 0.06, 0.19), truncated(Normal(0.2, 0.04), 0.06, 0.19)],
-        tr_size_2 = [truncated(Normal(0.2, 0.04), 0.06, 0.19), truncated(Normal(0.2, 0.04), 0.06, 0.19)],
-        ang_spr = [truncated(Normal(4.0, 2.0), 4.0, 7.0), truncated(Normal(4.0, 2.0), 4.0, 7.0)],
+        tr_size = [truncated(Normal(0.2, 0.04), 0.03, 0.19), truncated(Normal(0.2, 0.04), 0.03, 0.19)],
+        tr_size_2 = [truncated(Normal(0.2, 0.04), 0.03, 0.19), truncated(Normal(0.2, 0.04), 0.03, 0.19)],
+        ang_spr = [truncated(Normal(4.0, 2.0), 1.0, 8.0), truncated(Normal(4.0, 2.0), 1.0, 8.0)],
         ang_spr_2 = [truncated(Normal(4.0, 2.0), 1.0, 4.0), truncated(Normal(4.0, 2.0), 1.0, 4.0)],
-        mixt_pow =  0.50 .. 1.0 ,
-        waist = [truncated(Normal(2.9, 0.03), 2.65, 3.5)],
-        waist_2 = [truncated(Normal(2.9, 0.03), 2.65, 3.5)], # 11
+        mixt_pow =  0.35 .. 1.0, 
+        waist = [truncated(Normal(2.774, 0.03), 2.5, 3.6)],
+        waist_2 = [truncated(Normal(2.774, 0.03), 2.5, 3.6)],
         algmx = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
         algmy = [23.0 .. 48, 23.0 .. 48.0, 10.0 .. 30.0, 23.0 .. 48.0],
         cam4_ped = 4.0 .. 40.0,
@@ -114,8 +117,9 @@ function def_prior()
         cam4_psx = 121.8, # 37
         cam4_psy = 120.0, # 38
         light_amp  = [1.0 .. 13.0 , 1.0 .. 17.0, 1.0 .. 5.0], # 1.0 .. 5.0
-        s_cam = [0.0, 1.478, 15.026, 23.1150],
-    )
+        s_cam = [0.0, 1.47799, 15.025999, 23.1644],
+);
+
 end
 
 function main(event_ind)
@@ -123,8 +127,8 @@ function main(event_ind)
     prior = def_prior()
     data = def_data_vector(event_ind)
     conv_mat = def_conv_mat()
-    tuning, convergence, init, burnin  = def_settings()
-    nsamples, nchains = 10^6, 4
+    mcmcalgo, convergence, init, burnin, rng = def_settings()
+    nsamples, nchains = 6*10^5, 4
     PATH = "../../data/sampling_results/Benchmark-5/"
     
     for (ind, vals) in enumerate(data)
@@ -132,24 +136,27 @@ function main(event_ind)
         print("Sampling event #$ind $(event_ind[ind]) out of $(length(event_ind)) \n")
         
         log_likelihood = log_lik_ndiff(vals, conv_mat)
-        
         posterior = PosteriorDensity(log_likelihood, prior)
         
-        sampler = MetropolisHastings(tuning=tuning,)
-        
-        algorithm = MCMCSampling(sampler=sampler, 
-            nchains=nchains, 
-            init=init, 
-            burnin=burnin, 
-            convergence=convergence
-        )
-        @time samples = bat_sample(
-            posterior, nchains*nsamples, algorithm,
-            max_neval = nchains*nsamples,
-            max_time = Inf,
-        ).result
-        
-        BAT.bat_write(PATH*"hc-$(event_ind[ind]).hdf5", unshaped.(samples))
+        try
+            @time samples = bat_sample(
+                rng, posterior,
+                MCMCSampling(
+                    mcalg = mcmcalgo,
+                    trafo = NoDensityTransform(),
+                    nchains = nchains,
+                    nsteps = nsamples,
+                    init = init,
+                    burnin = burnin,
+                    convergence = convergence,
+                    strict = false,
+                )
+            ).result
+
+            BAT.bat_write(PATH*"hc-$(event_ind[ind]).hdf5", unshaped.(samples))
+        catch
+            @show "Error"
+        end    
     end
     
     

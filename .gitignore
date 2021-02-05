@@ -2,6 +2,7 @@
 data/experiment/*
 data/resolution/*
 data/sampling_results/*
+data/tmp_sampling_results/*
 .DS_Store
 notebooks/.DS_Store
 notebooks/tmp*
