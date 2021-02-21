@@ -130,7 +130,10 @@ function corner_plots(
         levels_quantiles = [0.4, 0.7, 0.8, 0.9, 0.99, 1,], 
         hist_color = plt.cm.Blues(0.7), 
         colors = vcat([1 1 1 1], plt.cm.Blues(range(0, stop=1, length=length(levels_quantiles)))[2:end,:]),
-        figsize = figsize
+        figsize = figsize,
+        saveplot = false,
+        filename = false
+        
     )
     
     sample_weights = samples.weight
@@ -177,6 +180,10 @@ function corner_plots(
             ax[i,j].set_ylabel(dim_names[i])
         end
     end
+    
+    if saveplot
+        fig.savefig(filename, bbox_inches = "tight") 
+    end
         
 end
 
@@ -204,7 +211,17 @@ end
 
 nansum(x) = sum(x[.!isnan.(x)])
 
-function plot_projections(cv_matrix, event_tr, event_nt, params; isnontr = false, istrunc = true)
+function plot_projections(
+        cv_matrix, 
+        event_tr,
+        event_nt,
+        params; 
+        isnontr = false, 
+        istrunc = true, 
+        figsize=(12,8),
+        saveplot = false,
+        filename = false
+    )
     
     amp_coeff = 1.15
     alpha_1 = 0.005
@@ -221,8 +238,8 @@ function plot_projections(cv_matrix, event_tr, event_nt, params; isnontr = false
         include_satur=false
     )
     
-    fig, ax = plt.subplots(4,2, figsize=(12,8))
-    fig.subplots_adjust(hspace=0.23, wspace=0.05)
+    fig, ax = plt.subplots(4,2, figsize=figsize)
+    fig.subplots_adjust(hspace=0.24, wspace=0.05)
     
     for i in 1:4 
         ycounts_nt = [sum(event_nt[i], dims=1)...]
@@ -249,7 +266,7 @@ function plot_projections(cv_matrix, event_tr, event_nt, params; isnontr = false
             fluct_down = median_sum .- [quantile(j, 0.025) for j in fluct]
         end
 
-        ax[i,1].errorbar(xedges, median_sum, yerr=[fluct_down, fluct_up], ms=2.2, fmt=".", color=color_2, ecolor=color_3,  capthick=0.5, capsize=1.5, linewidth=0.5)
+        ax[i,1].errorbar(xedges, median_sum, yerr=[fluct_down, fluct_up], ms=2.2, fmt=".", color=color_2, ecolor=color_3,  capthick=0.5, capsize=1.2, linewidth=0.5)
 
         ax[i,1].set_ylim(bottom=0.0)
         ax[i,1].set_xlim(minimum(xedges), maximum(xedges))
@@ -277,7 +294,7 @@ function plot_projections(cv_matrix, event_tr, event_nt, params; isnontr = false
             fluct_down = median_sum .- [quantile(j, 0.025) for j in fluct];
         end
 
-        ax[i,2].errorbar(xedges, median_sum, yerr=[fluct_down, fluct_up], ms=2.2, fmt=".", color=color_2, ecolor=color_3,  capthick=0.5, capsize=1.5, linewidth=0.5)
+        ax[i,2].errorbar(xedges, median_sum, yerr=[fluct_down, fluct_up], ms=2.2, fmt=".", color=color_2, ecolor=color_3,  capthick=0.5, capsize=1.2, linewidth=0.5)
 
         ax[i,2].set_ylim(bottom=0.0)
         ax[i,2].set_xlim(minimum(xedges), maximum(xedges))
@@ -289,10 +306,14 @@ function plot_projections(cv_matrix, event_tr, event_nt, params; isnontr = false
     ax[4,1].set_xlabel("y (pixel index)")
     ax[4,2].set_xlabel("x (pixel index)")
 
-    ax[1,1].set_ylabel("Cam. #1")
-    ax[2,1].set_ylabel("Cam. #2")
-    ax[3,1].set_ylabel("Cam. #3")
-    ax[4,1].set_ylabel("Cam. #4")
+    ax[1,1].set_ylabel("Cam. 1")
+    ax[2,1].set_ylabel("Cam. 2")
+    ax[3,1].set_ylabel("Cam. 3")
+    ax[4,1].set_ylabel("Cam. 4")
 
-    fig.text(0.08, 0.5, "Integrated Light Intensity (a.u.)", va="center", rotation="vertical")
+    fig.text(0.05, 0.5, "Integrated Signal (a.u.)", va="center", rotation="vertical")
+    
+    if saveplot
+        fig.savefig(filename, bbox_inches = "tight") 
+    end
 end
