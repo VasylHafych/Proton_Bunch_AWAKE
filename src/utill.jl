@@ -253,7 +253,7 @@ function plot_projections(
         end
         
         if istrunc
-            ax[i,1].fill_between(xedges, ycounts_tr, step="mid", color=color_1, alpha=0.8)
+            ax[i,1].fill_between(xedges, ycounts_tr, step="mid", color=color_1, alpha=0.8,label="Data")
         end
 
         if i != 4
@@ -266,7 +266,7 @@ function plot_projections(
             fluct_down = median_sum .- [quantile(j, 0.025) for j in fluct]
         end
 
-        ax[i,1].errorbar(xedges, median_sum, yerr=[fluct_down, fluct_up], ms=2.2, fmt=".", color=color_2, ecolor=color_3,  capthick=0.5, capsize=1.2, linewidth=0.5)
+        ax[i,1].errorbar(xedges, median_sum, yerr=[fluct_down, fluct_up], ms=2.2, fmt=".", color=color_2, ecolor=color_3,  capthick=0.5, capsize=1.2, linewidth=0.5, label="Model")
 
         ax[i,1].set_ylim(bottom=0.0)
         ax[i,1].set_xlim(minimum(xedges), maximum(xedges))
@@ -281,7 +281,7 @@ function plot_projections(
             ax[i,2].step(xedges, ycounts_nt, color=color_1, where="mid", zorder=0)
         end
         if istrunc
-            ax[i,2].fill_between(xedges, ycounts_tr, step="mid", color=color_1, alpha=0.8)
+            ax[i,2].fill_between(xedges, ycounts_tr, step="mid", color=color_1, alpha=0.8, label="Data")
         end
 
         if i != 4
@@ -294,7 +294,7 @@ function plot_projections(
             fluct_down = median_sum .- [quantile(j, 0.025) for j in fluct];
         end
 
-        ax[i,2].errorbar(xedges, median_sum, yerr=[fluct_down, fluct_up], ms=2.2, fmt=".", color=color_2, ecolor=color_3,  capthick=0.5, capsize=1.2, linewidth=0.5)
+        ax[i,2].errorbar(xedges, median_sum, yerr=[fluct_down, fluct_up], ms=2.2, fmt=".", color=color_2, ecolor=color_3,  capthick=0.5, capsize=1.2, linewidth=0.5, label="Model")
 
         ax[i,2].set_ylim(bottom=0.0)
         ax[i,2].set_xlim(minimum(xedges), maximum(xedges))
@@ -303,8 +303,10 @@ function plot_projections(
         ax[i,2].set_yticks([])
     end
 
-    ax[4,1].set_xlabel("y (pixel index)")
-    ax[4,2].set_xlabel("x (pixel index)")
+    ax[4,1].set_xlabel("y (pixels)")
+    ax[4,2].set_xlabel("x (pixels)")
+    
+    ax[1,2].legend(loc="upper right", framealpha=0.0)
 
     ax[1,1].set_ylabel("Cam. 1")
     ax[2,1].set_ylabel("Cam. 2")
