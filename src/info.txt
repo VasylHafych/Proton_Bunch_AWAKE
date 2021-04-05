@@ -7,3 +7,5 @@ Benchmark-10: Long run with 1-Gaussian model.
 Benchmark-11: Rotation of the bunch for two models (event HC2). 
 Benchmark-12: Impact of the pixel size uncertanity and the resolution effects on both models. AHMI is used to compare models. Priors ae adjusted  (event HC2). To test smearing effects, HC220 event is used. 
 Benchmark-13: Effect of the resolution function on the IS2. (event HC2)
+Benchmark-14: Axisymmetrical bunch fit (Single Gaussian)
+Benchmark-15: Axisymmetrical bunch fit (Double Gaussian)
