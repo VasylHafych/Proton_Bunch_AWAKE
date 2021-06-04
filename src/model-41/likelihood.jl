@@ -52,6 +52,8 @@ function likelihood_cam4(
                 
                 @inbounds cum_log_lik += logpdf(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), image[pix_ind]) 
                 
+#                 @inbounds cum_log_lik += logpdf(Normal(pix_prediction, sqrt((params.cam4_light_fluct*sqrt(pix_prediction))^2 + 13.78^2)), image[pix_ind])  # add additional background
+                
             end
         end
         

@@ -9,3 +9,8 @@ Benchmark-12: Impact of the pixel size uncertanity and the resolution effects on
 Benchmark-13: Effect of the resolution function on the IS2. (event HC2)
 Benchmark-14: Axisymmetrical bunch fit (Single Gaussian)
 Benchmark-15: Axisymmetrical bunch fit (Double Gaussian)
+Benchmark-16: Test of data truncation 
+Benchmark-17: Test of background on Cam.4, add noise 
+
+
+
