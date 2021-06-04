@@ -1,7 +1,8 @@
 function likelihood_cam4(
-        params::NamedTuple, 
+        params::NamedTuple,
         image::Array{F,2},
         population::AbstractFloat,
+        bckgr::Float64, 
         cam_ind::Integer;
         n_threads::Integer = Threads.nthreads()
     ) where {F <: AbstractFloat}
@@ -50,9 +51,9 @@ function likelihood_cam4(
                 pix_prediction = params.mixt_pow*z1[pix_ind] + (1-params.mixt_pow)*z2[pix_ind]
                 pix_prediction = pix_prediction*light_coefficient + params.cam4_ped
                 
-                @inbounds cum_log_lik += logpdf(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), image[pix_ind]) 
+#                 @inbounds cum_log_lik += logpdf(Normal(pix_prediction, params.cam4_light_fluct*sqrt(pix_prediction)), image[pix_ind]) 
                 
-#                 @inbounds cum_log_lik += logpdf(Normal(pix_prediction, sqrt((params.cam4_light_fluct*sqrt(pix_prediction))^2 + 13.78^2)), image[pix_ind])  # add additional background
+                @inbounds cum_log_lik += logpdf(Normal(pix_prediction, sqrt(params.cam4_light_fluct^2*pix_prediction + bckgr^2)), image[pix_ind])  # add additional background
                 
             end
         end

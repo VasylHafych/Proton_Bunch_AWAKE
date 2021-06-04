@@ -11,6 +11,6 @@ Benchmark-14: Axisymmetrical bunch fit (Single Gaussian)
 Benchmark-15: Axisymmetrical bunch fit (Double Gaussian)
 Benchmark-16: Test of data truncation 
 Benchmark-17: Test of background on Cam.4, add noise 
-
+Benchmark-5-b: Added additional fluctuations to the IS2 camera. 
 
 
